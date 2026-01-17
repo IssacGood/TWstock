@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>個股監控儀表板</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen">
+    <div id="app" class="container mx-auto px-4 py-12 max-w-2xl">
+        <h1 class="text-3xl font-extrabold text-slate-800 mb-8 text-center">個股即時數據監控</h1>
+        
+        <div class="flex gap-2 mb-8">
+            <input v-model="symbol" @keyup.enter="search" type="text" placeholder="輸入代碼 (如: 2330)" 
+                   class="flex-1 p-3 rounded-lg border-2 border-slate-200 focus:border-blue-500 outline-none">
+            <button @click="search" :disabled="loading" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 font-bold transition">
+                {{ loading ? '查詢中...' : '查詢' }}
+            </button>
+        </div>
+
+        <div v-if="data" class="grid grid-cols-1 gap-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <p class="text-slate-500 text-sm font-bold uppercase">股票名稱</p>
+                <p class="text-2xl font-black text-slate-800">{{ data.name }}</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center">
+                    <p class="text-slate-400 text-xs mb-1">現價 ({{ data.currency }})</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ data.price }}</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center">
+                    <p class="text-slate-400 text-xs mb-1">今日周轉率</p>
+                    <p class="text-2xl font-bold text-orange-500">{{ data.turnover_rate }}%</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center">
+                    <p class="text-slate-400 text-xs mb-1">相關新聞數</p>
+                    <p class="text-2xl font-bold text-emerald-600">{{ data.news_count }}</p>
+                </div>
+            </div>
+        </div>
+
+        <p v-if="error" class="mt-4 text-red-500 text-center font-medium">{{ error }}</p>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue;
+        createApp({
+            setup() {
+                const symbol = ref('');
+                const data = ref(null);
+                const loading = ref(false);
+                const error = ref('');
+
+                const search = async () => {
+                    if (!symbol.value) return;
+                    loading.value = true;
+                    error.value = '';
+                    try {
+                        const res = await fetch(`http://127.0.0.1:8000/api/stock/${symbol.value}`);
+                        if (!res.ok) throw new Error('查詢失敗，請檢查代碼是否正確');
+                        data.value = await res.json();
+                    } catch (e) {
+                        error.value = e.message;
+                        data.value = null;
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+                return { symbol, data, loading, error, search };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
