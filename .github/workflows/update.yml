@@ -1,0 +1,37 @@
+name: 每日台股資料更新
+
+on:
+  schedule:
+    # 台灣時間 18:30（UTC+8），換算 UTC 為 10:30
+    - cron: '30 10 * * 1-5'   # 週一到週五
+  workflow_dispatch:            # 允許手動觸發
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance pandas
+
+      - name: Fetch stock data
+        run: python scripts/fetch_data.py
+
+      - name: Commit & push data
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/stocks.json
+          git diff --staged --quiet || git commit -m "chore: update stocks data $(date +'%Y-%m-%d %H:%M')"
+          git push
