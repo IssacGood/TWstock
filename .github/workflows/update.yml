@@ -4,13 +4,12 @@ on:
   schedule:
     # 台灣時間 18:30（UTC 10:30），週一到週五
     - cron: '30 10 * * 1-5'
-  workflow_dispatch:  # 允許手動觸發
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  # ── 三批平行抓取 ─────────────────────────────────────────
   fetch-A:
     runs-on: ubuntu-latest
     steps:
@@ -23,7 +22,6 @@ jobs:
         with:
           name: batch-A
           path: data/stocks_A.json
-          retention-days: 1
 
   fetch-B:
     runs-on: ubuntu-latest
@@ -37,7 +35,6 @@ jobs:
         with:
           name: batch-B
           path: data/stocks_B.json
-          retention-days: 1
 
   fetch-C:
     runs-on: ubuntu-latest
@@ -51,27 +48,36 @@ jobs:
         with:
           name: batch-C
           path: data/stocks_C.json
-          retention-days: 1
 
-  # ── 等三批都完成後合併並 commit ──────────────────────────
   merge-and-commit:
     runs-on: ubuntu-latest
     needs: [fetch-A, fetch-B, fetch-C]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: '3.11' }
-      - run: pip install twstock
+
+      # 下載三批 artifact，各自放進 data/ 資料夾
+      - uses: actions/download-artifact@v4
+        with:
+          name: batch-A
+          path: data
 
       - uses: actions/download-artifact@v4
-        with: { name: batch-A, path: data }
-      - uses: actions/download-artifact@v4
-        with: { name: batch-B, path: data }
-      - uses: actions/download-artifact@v4
-        with: { name: batch-C, path: data }
+        with:
+          name: batch-B
+          path: data
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: batch-C
+          path: data
+
+      # 列出確認檔案存在
+      - name: 確認 artifact 檔案
+        run: ls -lh data/
+
+      # 合併（純標準庫，不需要安裝任何套件）
       - name: 合併三批資料
-        run: python scripts/fetch_data.py --merge
+        run: python scripts/merge_data.py
 
       - name: Commit & push
         run: |
