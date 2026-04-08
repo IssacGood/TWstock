@@ -9,108 +9,150 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
 :root{
   --bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--border:#252a3a;
-  --accent:#00c896;--accent2:#4f8ef7;--red:#f05050;--gold:#f0b840;
+  --accent:#00c896;--accent2:#4f8ef7;--gold:#f0b840;
   --text:#e8eaf0;--text2:#8892aa;--text3:#55607a;
-  --up:#26a69a;--down:#ef5350;--radius:8px;
-  --font:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace;
+  /* 台灣慣例：漲紅跌綠 */
+  --up:#e84040;--down:#28a745;
+  --radius:8px;--font:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
 
-.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.topbar-logo{font-family:var(--mono);font-weight:600;font-size:16px;color:var(--accent);letter-spacing:2px}
-.topbar-nav a{color:var(--text2);text-decoration:none;margin-left:24px;font-size:14px;transition:color .2s}
-.topbar-nav a:hover,.topbar-nav a.active{color:var(--accent)}
-.updated-tag{font-size:11px;color:var(--text3);font-family:var(--mono)}
+/* ── Topbar ── */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
+.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px;white-space:nowrap}
+.topbar-nav{display:flex;gap:2px;flex-wrap:nowrap;overflow-x:auto}
+.topbar-nav a{color:var(--text2);text-decoration:none;font-size:13px;padding:4px 10px;border-radius:6px;white-space:nowrap;transition:all .15s}
+.topbar-nav a:hover{color:var(--text);background:var(--bg3)}
+.topbar-nav a.active{color:var(--accent);background:rgba(0,200,150,.1)}
+.updated-tag{font-size:11px;color:var(--text3);font-family:var(--mono);white-space:nowrap}
 
-.layout{display:grid;grid-template-columns:270px 1fr;min-height:calc(100vh - 56px)}
+/* ── Layout ── */
+.layout{display:grid;grid-template-columns:256px 1fr;min-height:calc(100vh - 52px)}
 
-.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:16px 14px;overflow-y:auto;height:calc(100vh - 56px);position:sticky;top:56px}
-.sidebar-title{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
+/* ── Sidebar ── */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:14px 12px;overflow-y:auto;height:calc(100vh - 52px);position:sticky;top:52px}
+.sidebar-section{margin-bottom:16px}
+.sidebar-title{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:8px}
 
-.search-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;gap:8px;padding:0 10px;margin-bottom:14px;transition:border-color .2s}
+.search-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;gap:6px;padding:0 10px;margin-bottom:12px;transition:border-color .2s}
 .search-box:focus-within{border-color:var(--accent2)}
-.search-box input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:13px;font-family:var(--font);padding:8px 0}
+.search-box input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:13px;padding:7px 0}
 .search-box input::placeholder{color:var(--text3)}
 
-.filter-hint{background:rgba(0,200,150,.07);border:1px solid rgba(0,200,150,.2);border-radius:var(--radius);padding:7px 10px;font-size:12px;color:var(--accent);margin-bottom:14px;line-height:1.6}
-.filter-group{margin-bottom:18px}
-.filter-group-label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.filter-group-label::before{content:'';width:3px;height:12px;background:var(--accent2);border-radius:2px;display:block}
-.filter-item{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;cursor:pointer;transition:background .15s;margin-bottom:1px}
+/* ── 類股快選 ── */
+.sector-wrap{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.sector-btn{font-size:11px;padding:3px 8px;border:1px solid var(--border);border-radius:20px;cursor:pointer;color:var(--text2);background:var(--bg3);transition:all .15s;white-space:nowrap}
+.sector-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+.sector-btn.active{background:var(--accent2);border-color:var(--accent2);color:#fff}
+
+.filter-hint{background:rgba(0,200,150,.07);border:1px solid rgba(0,200,150,.2);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--accent);margin-bottom:12px;line-height:1.6}
+.filter-group{margin-bottom:14px}
+.filter-group-label{font-size:11px;color:var(--text2);font-weight:600;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.filter-group-label::before{content:'';width:3px;height:11px;background:var(--accent2);border-radius:2px;display:block}
+
+/* ★ 點文字也能勾選 */
+.filter-item{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:6px;cursor:pointer;transition:background .15s;user-select:none}
 .filter-item:hover{background:var(--bg3)}
-.filter-item input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
-.filter-item label{font-size:13px;cursor:pointer;flex:1}
-.divider{height:1px;background:var(--border);margin:10px 0}
-.reset-btn{width:100%;padding:7px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-size:13px;font-family:var(--font);cursor:pointer;transition:all .2s}
+.filter-item input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer;flex-shrink:0}
+.filter-item span{font-size:12px;cursor:pointer;flex:1}
+
+.divider{height:1px;background:var(--border);margin:8px 0}
+.reset-btn{width:100%;padding:6px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-size:12px;font-family:var(--font);cursor:pointer;transition:all .2s}
 .reset-btn:hover{border-color:var(--accent);color:var(--accent)}
 
-.main{padding:20px;overflow-y:auto}
-.main-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
-.result-count{font-family:var(--mono);font-size:14px;color:var(--text2)}
-.result-count span{color:var(--accent);font-size:20px;font-weight:600}
-.sort-bar{display:flex;gap:6px;align-items:center}
-.sort-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:12px;padding:5px 10px;cursor:pointer;font-family:var(--font);transition:all .15s}
+/* ── Main ── */
+.main{padding:16px;overflow-y:auto}
+.main-header{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.result-count{font-family:var(--mono);font-size:13px;color:var(--text2)}
+.result-count span{color:var(--accent);font-size:18px;font-weight:600}
+.sort-bar{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.sort-label{font-size:11px;color:var(--text3)}
+.sort-btn{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text2);font-size:11px;padding:4px 8px;cursor:pointer;font-family:var(--font);transition:all .15s}
 .sort-btn.active,.sort-btn:hover{border-color:var(--accent2);color:var(--accent2)}
 
-.pagination{display:flex;gap:6px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
-.page-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:12px;padding:5px 10px;cursor:pointer;font-family:var(--mono);transition:all .15s;min-width:36px;text-align:center}
+.pagination{display:flex;gap:4px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.page-btn{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text2);font-size:11px;padding:4px 8px;cursor:pointer;font-family:var(--mono);transition:all .15s;min-width:32px;text-align:center}
 .page-btn.active,.page-btn:hover{border-color:var(--accent2);color:var(--accent2)}
-.page-info{font-size:12px;color:var(--text3);font-family:var(--mono)}
+.page-info{font-size:11px;color:var(--text3);font-family:var(--mono)}
 
-.stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
-.stock-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s,transform .15s}
-.stock-card:hover{border-color:var(--accent2);transform:translateY(-2px)}
+/* ── Stock grid ── */
+.stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.stock-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s,box-shadow .2s;cursor:pointer}
+.stock-card:hover{border-color:var(--accent2);box-shadow:0 4px 20px rgba(79,142,247,.15)}
 .card-header{padding:10px 12px 6px;display:flex;justify-content:space-between;align-items:flex-start}
-.card-left{cursor:pointer;flex:1;min-width:0}
+.card-left{flex:1;min-width:0}
 .card-symbol{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--accent2)}
-.card-name{font-size:12px;color:var(--text2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-name{font-size:11px;color:var(--text2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-group{font-size:10px;color:var(--text3);margin-top:2px}
 .card-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
-.card-close{font-family:var(--mono);font-size:16px;font-weight:600}
+.card-close{font-family:var(--mono);font-size:15px;font-weight:700}
 .card-change{font-size:11px;font-family:var(--mono)}
-.cnyes-link{display:inline-flex;align-items:center;gap:2px;font-size:10px;color:var(--text3);text-decoration:none;border:1px solid var(--border);border-radius:3px;padding:1px 5px;transition:all .15s;white-space:nowrap}
+.cnyes-link{display:inline-flex;align-items:center;gap:2px;font-size:10px;color:var(--text3);text-decoration:none;border:1px solid var(--border);border-radius:3px;padding:1px 5px;transition:all .15s}
 .cnyes-link:hover{color:var(--gold);border-color:var(--gold)}
-.card-flags{padding:6px 12px 10px;display:flex;flex-wrap:wrap;gap:3px;min-height:28px}
+.card-flags{padding:5px 12px 8px;display:flex;flex-wrap:wrap;gap:3px;min-height:26px}
 .flag-tag{font-size:10px;padding:1px 6px;border-radius:3px;font-weight:500}
-.flag-bull{background:rgba(0,200,150,.15);color:var(--accent)}
-.flag-bear{background:rgba(240,80,80,.15);color:var(--red)}
+.flag-bull{background:rgba(232,64,64,.15);color:var(--up)}
+.flag-bear{background:rgba(40,167,69,.15);color:var(--down)}
 .flag-info{background:rgba(79,142,247,.12);color:var(--accent2)}
 
-.up{color:#26a69a}.down{color:#ef5350}.flat{color:var(--text2)}
+/* ★ 台灣慣例顏色 */
+.up{color:var(--up)!important}
+.down{color:var(--down)!important}
+.flat{color:var(--text2)!important}
 
-/* Modal */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;backdrop-filter:blur(4px);justify-content:center;align-items:flex-start;padding:32px 20px;overflow-y:auto}
+/* ── Modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;backdrop-filter:blur(4px);justify-content:center;align-items:flex-start;padding:24px 16px;overflow-y:auto}
 .modal-overlay.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:100%;max-width:960px;padding:24px;position:relative;animation:fadeUp .25s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.modal-close{position:absolute;top:14px;right:14px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text2);width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .15s}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:980px;padding:20px;position:relative;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-close{position:absolute;top:12px;right:12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text2);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .15s}
 .modal-close:hover{color:var(--text);border-color:var(--text2)}
-.modal-title{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;flex-wrap:wrap}
-.modal-symbol{font-family:var(--mono);font-size:22px;font-weight:600;color:var(--accent2)}
-.modal-name{font-size:15px;color:var(--text)}
-.modal-links{display:flex;gap:8px;margin-bottom:12px}
-.modal-link{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text2);text-decoration:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;transition:all .15s}
+.modal-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.modal-title-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.modal-symbol{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--accent2)}
+.modal-name{font-size:14px;color:var(--text)}
+.modal-group-tag{font-size:11px;color:var(--text3);border:1px solid var(--border);border-radius:4px;padding:1px 7px}
+.modal-price-row{text-align:right}
+.modal-price{font-family:var(--mono);font-size:24px;font-weight:700}
+.modal-chg{font-family:var(--mono);font-size:13px;margin-top:2px}
+
+.modal-links{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.modal-link{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--text2);text-decoration:none;border:1px solid var(--border);border-radius:5px;padding:3px 9px;transition:all .15s}
 .modal-link:hover{color:var(--gold);border-color:var(--gold)}
+.nav-arrows{display:flex;gap:4px;margin-left:auto}
+.nav-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text2);padding:4px 12px;cursor:pointer;font-size:13px;transition:all .15s}
+.nav-btn:hover{border-color:var(--accent2);color:var(--accent2)}
 
-.range-bar{display:flex;gap:4px;margin-bottom:8px}
-.range-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text3);font-size:11px;padding:3px 8px;cursor:pointer;transition:all .15s}
+/* ── K線區 ── */
+.chart-controls{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.range-btn{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text3);font-size:11px;padding:3px 8px;cursor:pointer;transition:all .15s}
 .range-btn.active,.range-btn:hover{border-color:var(--accent2);color:var(--accent2)}
-.chart-legend{display:flex;gap:12px;flex-wrap:wrap;padding:4px 0 8px}
-.legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)}
-.legend-dot{width:20px;height:2px;border-radius:2px}
-.modal-chart{height:420px;border-radius:8px;overflow:hidden}
-.modal-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
-.stat-box{background:var(--bg3);border-radius:8px;padding:10px 12px}
-.stat-label{font-size:11px;color:var(--text3);margin-bottom:3px}
-.stat-value{font-family:var(--mono);font-size:14px;font-weight:600}
 
-/* 載入大圖中的 overlay */
-.chart-loading{display:flex;align-items:center;justify-content:center;height:420px;color:var(--text2);gap:12px;background:var(--bg3);border-radius:8px}
-.spinner-sm{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+/* 圖例移到右側 */
+.chart-legend{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
+.legend-item{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--text2)}
+.legend-dot{width:16px;height:2px;border-radius:2px}
 
-.empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text3)}
-.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--text2);gap:16px}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+/* OHLCV tooltip */
+.ohlcv-bar{font-family:var(--mono);font-size:11px;color:var(--text2);padding:3px 0;min-height:20px;display:flex;gap:12px;flex-wrap:wrap}
+.ohlcv-item span{color:var(--text3)}
+
+.modal-chart{height:400px;border-radius:8px;overflow:hidden;position:relative}
+.chart-loading{display:flex;align-items:center;justify-content:center;height:400px;color:var(--text2);gap:10px;background:var(--bg3);border-radius:8px}
+.spinner-sm{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+
+.modal-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.stat-box{background:var(--bg3);border-radius:7px;padding:8px 12px}
+.stat-label{font-size:10px;color:var(--text3);margin-bottom:3px}
+.stat-value{font-family:var(--mono);font-size:13px;font-weight:600}
+
+.kbd-hint{font-size:11px;color:var(--text3);text-align:center;margin-top:8px}
+kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;font-family:var(--mono)}
+
+.empty{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text3)}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--text2);gap:14px}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 @media(max-width:768px){
@@ -124,62 +166,92 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 <div class="topbar">
   <div class="topbar-logo">TWSTOCK</div>
   <nav class="topbar-nav">
-    <a href="index.html" class="active">選股篩選</a>
-    <a href="watchlist.html">自訂清單</a>
+    <a href="index.html" class="active">選股</a>
+    <a href="watchlist.html">批量搜尋</a>
+    <a href="favorites.html">我的最愛</a>
+    <a href="market.html">大盤/期貨</a>
+    <a href="stats.html">統計</a>
+    <a href="sectors.html">類股排行</a>
+    <a href="ai.html">AI選股</a>
+    <a href="fear.html">貪婪指數</a>
   </nav>
   <div class="updated-tag" id="updatedAt">載入中…</div>
 </div>
 
 <div class="layout">
   <aside class="sidebar">
-    <div class="sidebar-title">選股條件</div>
-    <div class="search-box">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" id="searchInput" placeholder="搜尋代碼或名稱…">
+    <!-- 搜尋 -->
+    <div class="sidebar-section">
+      <div class="search-box">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="搜尋代碼或名稱…">
+      </div>
     </div>
-    <div class="filter-hint">💡 預設顯示全部，勾選條件後篩選</div>
 
-    <div class="filter-group">
-      <div class="filter-group-label">均線條件</div>
-      <label class="filter-item"><input type="checkbox" data-flag="above_ma20"><label>股價站上 MA20</label></label>
-      <label class="filter-item"><input type="checkbox" data-flag="above_ma60"><label>股價站上 MA60</label></label>
-      <label class="filter-item"><input type="checkbox" data-flag="ma5_above_ma20"><label>MA5 在 MA20 上方</label></label>
-      <label class="filter-item"><input type="checkbox" data-flag="golden_cross"><label>黃金交叉（MA5↑MA20）</label></label>
-      <label class="filter-item"><input type="checkbox" data-flag="death_cross"><label>死亡交叉（MA5↓MA20）</label></label>
+    <!-- 類股快選 -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">類股篩選</div>
+      <div class="sector-wrap" id="sectorWrap">
+        <button class="sector-btn active" data-sector="">全部</button>
+      </div>
     </div>
-    <div class="filter-group">
-      <div class="filter-group-label">RSI</div>
-      <label class="filter-item"><input type="checkbox" data-flag="rsi_oversold"><label>RSI &lt; 30（超賣）</label></label>
-      <label class="filter-item"><input type="checkbox" data-flag="rsi_overbought"><label>RSI &gt; 70（超買）</label></label>
+
+    <!-- 選股條件 -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">選股條件</div>
+      <div class="filter-hint">💡 勾選條件自動篩選（AND）</div>
+
+      <div class="filter-group">
+        <div class="filter-group-label">股價範圍</div>
+        <label class="filter-item"><input type="checkbox" data-flag="price_u100"><span>股價 100 元以下</span></label>
+        <label class="filter-item"><input type="checkbox" data-flag="price_u200"><span>股價 200 元以下</span></label>
+        <label class="filter-item"><input type="checkbox" data-flag="price_u500"><span>股價 500 元以下</span></label>
+        <label class="filter-item"><input type="checkbox" data-flag="price_u1000"><span>股價 1000 元以下</span></label>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-label">均線條件</div>
+        <label class="filter-item"><input type="checkbox" data-flag="above_ma20"><span>股價站上 MA20</span></label>
+        <label class="filter-item"><input type="checkbox" data-flag="above_ma60"><span>股價站上 MA60</span></label>
+        <label class="filter-item"><input type="checkbox" data-flag="ma5_above_ma20"><span>MA5 在 MA20 上方</span></label>
+        <label class="filter-item"><input type="checkbox" data-flag="golden_cross"><span>黃金交叉（MA5↑MA20）</span></label>
+        <label class="filter-item"><input type="checkbox" data-flag="death_cross"><span>死亡交叉（MA5↓MA20）</span></label>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-label">RSI</div>
+        <label class="filter-item"><input type="checkbox" data-flag="rsi_oversold"><span>RSI &lt; 30（超賣）</span></label>
+        <label class="filter-item"><input type="checkbox" data-flag="rsi_overbought"><span>RSI &gt; 70（超買）</span></label>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-label">MACD</div>
+        <label class="filter-item"><input type="checkbox" data-flag="macd_bullish"><span>MACD 多頭金叉</span></label>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-label">布林通道</div>
+        <label class="filter-item"><input type="checkbox" data-flag="near_bb_upper"><span>接近布林上軌</span></label>
+        <label class="filter-item"><input type="checkbox" data-flag="near_bb_lower"><span>接近布林下軌（反彈）</span></label>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-label">成交量 / K 棒</div>
+        <label class="filter-item"><input type="checkbox" data-flag="vol_surge"><span>爆量（1.5× 均量）</span></label>
+        <label class="filter-item"><input type="checkbox" data-flag="bullish_candle"><span>今日收紅K</span></label>
+        <label class="filter-item"><input type="checkbox" data-flag="new_high_50"><span>近50日新高</span></label>
+        <label class="filter-item"><input type="checkbox" data-flag="new_low_50"><span>近50日新低</span></label>
+      </div>
+      <div class="divider"></div>
+      <button class="reset-btn" id="resetBtn">清除所有條件</button>
     </div>
-    <div class="filter-group">
-      <div class="filter-group-label">MACD</div>
-      <label class="filter-item"><input type="checkbox" data-flag="macd_bullish"><label>MACD 多頭金叉</label></label>
-    </div>
-    <div class="filter-group">
-      <div class="filter-group-label">布林通道</div>
-      <label class="filter-item"><input type="checkbox" data-flag="near_bb_upper"><label>接近布林上軌</label></label>
-      <label class="filter-item"><input type="checkbox" data-flag="near_bb_lower"><label>接近布林下軌（反彈）</label></label>
-    </div>
-    <div class="filter-group">
-      <div class="filter-group-label">成交量 / K 棒</div>
-      <label class="filter-item"><input type="checkbox" data-flag="vol_surge"><label>爆量（1.5× 均量）</label></label>
-      <label class="filter-item"><input type="checkbox" data-flag="bullish_candle"><label>今日收紅K</label></label>
-      <label class="filter-item"><input type="checkbox" data-flag="new_high_50"><label>近50日新高</label></label>
-      <label class="filter-item"><input type="checkbox" data-flag="new_low_50"><label>近50日新低</label></label>
-    </div>
-    <div class="divider"></div>
-    <button class="reset-btn" id="resetBtn">清除所有條件</button>
   </aside>
 
   <main class="main">
     <div class="main-header">
       <div class="result-count">顯示：<span id="matchCount">0</span> 檔</div>
       <div class="sort-bar">
-        <span style="font-size:12px;color:var(--text3)">排序：</span>
-        <button class="sort-btn active" data-sort="change_desc">漲幅↓</button>
-        <button class="sort-btn" data-sort="change_asc">漲幅↑</button>
-        <button class="sort-btn" data-sort="symbol">代碼</button>
+        <span class="sort-label">排序：</span>
+        <button class="sort-btn active" data-sort="chg_d">漲幅↓</button>
+        <button class="sort-btn" data-sort="chg_a">漲幅↑</button>
+        <button class="sort-btn" data-sort="price_d">股價↓</button>
+        <button class="sort-btn" data-sort="price_a">股價↑</button>
+        <button class="sort-btn" data-sort="sym">代碼</button>
       </div>
     </div>
     <div class="pagination" id="pagination"></div>
@@ -193,32 +265,56 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <button class="modal-close" id="modalClose">✕</button>
-    <div class="modal-title">
-      <span class="modal-symbol" id="mSymbol"></span>
-      <span class="modal-name" id="mName"></span>
+    <div class="modal-top">
+      <div>
+        <div class="modal-title-row">
+          <span class="modal-symbol" id="mSymbol"></span>
+          <span class="modal-name" id="mName"></span>
+          <span class="modal-group-tag" id="mGroup"></span>
+        </div>
+      </div>
+      <div class="modal-price-row">
+        <div class="modal-price" id="mPrice"></div>
+        <div class="modal-chg" id="mChg"></div>
+      </div>
     </div>
-    <div class="modal-links" id="mLinks"></div>
-    <div class="range-bar" id="rangeBar">
+    <div class="modal-links" id="mLinks">
+      <div class="nav-arrows">
+        <button class="nav-btn" id="prevBtn">◀ 上一檔</button>
+        <button class="nav-btn" id="nextBtn">下一檔 ▶</button>
+      </div>
+    </div>
+
+    <div class="chart-controls">
       <button class="range-btn" data-range="50">近50根</button>
       <button class="range-btn active" data-range="120">近6月</button>
       <button class="range-btn" data-range="250">近1年</button>
       <button class="range-btn" data-range="0">全部</button>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#f0b840"></div>MA5</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>MA20</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#b060f0"></div>MA60</div>
+        <div class="legend-item"><div class="legend-dot" style="border-top:1px dashed rgba(240,184,64,.5);width:16px;height:0"></div>BB</div>
+      </div>
     </div>
-    <div class="chart-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#f0b840"></div>MA5</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>MA20</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#b060f0"></div>MA60</div>
-      <div class="legend-item"><div class="legend-dot" style="border-top:1px dashed rgba(240,184,64,.5);width:20px;height:0"></div>布林通道</div>
+
+    <!-- OHLCV 顯示列 -->
+    <div class="ohlcv-bar" id="ohlcvBar">
+      <span>滑鼠移到K棒上顯示 開/高/低/收/量</span>
     </div>
+
     <div class="modal-chart" id="modalChart">
       <div class="chart-loading"><div class="spinner-sm"></div><span>載入 K 線資料…</span></div>
     </div>
     <div class="modal-stats" id="modalStats"></div>
+    <div class="kbd-hint">鍵盤 <kbd>←</kbd> <kbd>→</kbd> 切換股票</div>
   </div>
 </div>
 
 <script>
-// ── 常數 ─────────────────────────────────
+// ══════════════════════════════════════════════
+//  常數 & 狀態
+// ══════════════════════════════════════════════
 const PAGE_SIZE = 60;
 const FLAG_LABELS = {
   above_ma20:    ['站上MA20','bull'], above_ma60:    ['站上MA60','bull'],
@@ -228,213 +324,276 @@ const FLAG_LABELS = {
   vol_surge:     ['爆量','info'],     near_bb_upper: ['近BB上軌','bear'],
   near_bb_lower: ['近BB下軌','bull'], bullish_candle:['收紅K','bull'],
   new_high_50:   ['50日新高','bull'], new_low_50:    ['50日新低','bear'],
+  price_u100:    ['≤100元','info'],   price_u200:    ['≤200元','info'],
+  price_u500:    ['≤500元','info'],   price_u1000:   ['≤1000元','info'],
 };
 
-// ── 狀態 ─────────────────────────────────
-let allStocks = [], filtered = [], sortMode = 'change_desc';
-let currentPage = 1, searchTerm = '';
-let modalChartObj = null, currentModalStock = null, currentRange = 120;
+// 大類對應（把34個細分類合併成大類按鈕）
+const SECTOR_MAP = {
+  '電子':['半導體業','其他電子業','電子零組件業','電腦及週邊設備業','電機機械','電器電纜','電子通路業','光電業','通信網路業','資訊服務業','數位雲端'],
+  '金融':['金融保險業'],
+  '航運':['航運業'],
+  '生技':['生技醫療業'],
+  '傳產':['塑膠工業','化學工業','橡膠工業','水泥工業','玻璃陶瓷','紡織纖維','造紙工業','鋼鐵工業','食品工業','汽車工業'],
+  '建設':['建材營造業'],
+  '觀光':['觀光餐旅','運動休閒'],
+  '綠能':['綠能環保'],
+  '其他':['其他業','農業科技業','貿易百貨業','文化創意業','油電燃氣業','居家生活'],
+};
 
-// 快取已載入的批次 K 棒資料
-const batchCache = {};   // 'A' -> Map(symbol -> candles[])
+let allStocks=[], filtered=[], sortMode='chg_d';
+let currentPage=1, searchTerm='', activeSector='';
+let modalChartObj=null, currentStockIdx=-1;
+const batchCache={};
 
-// ── 工具 ─────────────────────────────────
 const codeOnly = s => s.replace('.TWO','').replace('.TW','');
 const cnyesUrl = s => `https://www.cnyes.com/twstock/${codeOnly(s)}`;
 
-// 從 symbol 判斷屬於哪個 batch（需配合後端相同的分割邏輯）
-// stocks.json 裡若有 batch 欄位最好，否則前端難以判斷
-// 解法：stocks.json 裡每筆加 batch 欄位
-function getBatch(stock){ return stock.batch || 'A'; }
-
-// ── 前端技術指標計算 ──────────────────────
-function calcSMA(arr, n){
-  return arr.map((_,i) => i < n-1 ? null : arr.slice(i-n+1,i+1).reduce((a,b)=>a+b,0)/n);
+// ══════════════════════════════════════════════
+//  指標計算（前端 JS）
+// ══════════════════════════════════════════════
+function calcSMA(arr,n){
+  return arr.map((_,i)=>i<n-1?null:arr.slice(i-n+1,i+1).reduce((a,b)=>a+b,0)/n);
 }
-function calcEMA(arr, n){
-  const k = 2/(n+1); let ema = [];
-  arr.forEach((v,i) => {
-    if(i === 0){ ema.push(v); return; }
-    ema.push(v*k + ema[i-1]*(1-k));
-  });
-  return ema;
+function calcEMA(arr,n){
+  const k=2/(n+1);let e=[];
+  arr.forEach((v,i)=>{ e.push(i===0?v:v*k+e[i-1]*(1-k)); });
+  return e;
 }
-function calcRSI(arr, n=14){
-  const rsi = Array(arr.length).fill(null);
-  for(let i=n; i<arr.length; i++){
+function calcRSI(arr,n=14){
+  const r=Array(arr.length).fill(null);
+  for(let i=n;i<arr.length;i++){
     let g=0,l=0;
-    for(let j=i-n+1;j<=i;j++){
-      const d=arr[j]-arr[j-1];
-      if(d>0) g+=d; else l-=d;
-    }
-    rsi[i] = l===0 ? 100 : 100 - 100/(1+g/l*n/n);
+    for(let j=i-n+1;j<=i;j++){const d=arr[j]-arr[j-1];if(d>0)g+=d;else l-=d;}
+    r[i]=l===0?100:100-100/(1+g/l);
   }
-  return rsi;
+  return r;
 }
 function calcMACD(arr){
-  const e12=calcEMA(arr,12), e26=calcEMA(arr,26);
-  const line=e12.map((v,i)=>v-e26[i]);
-  const sig=calcEMA(line,9);
-  return {line, sig};
+  const line=calcEMA(arr,12).map((v,i)=>v-calcEMA(arr,26)[i]);
+  return{line,sig:calcEMA(line,9)};
 }
-function calcBB(arr, n=20){
+function calcBB(arr,n=20){
   return arr.map((_,i)=>{
-    if(i<n-1) return {u:null,l:null};
-    const sl=arr.slice(i-n+1,i+1);
-    const mean=sl.reduce((a,b)=>a+b,0)/n;
+    if(i<n-1)return{u:null,l:null};
+    const sl=arr.slice(i-n+1,i+1),mean=sl.reduce((a,b)=>a+b,0)/n;
     const std=Math.sqrt(sl.reduce((a,b)=>a+(b-mean)**2,0)/n);
-    return {u:mean+2*std, l:mean-2*std};
+    return{u:mean+2*std,l:mean-2*std};
   });
 }
 
-// ── 載入資料 ─────────────────────────────
+// ══════════════════════════════════════════════
+//  載入資料
+// ══════════════════════════════════════════════
 async function loadData(){
   try{
-    const res  = await fetch('data/stocks.json?t='+Date.now());
-    const data = await res.json();
-    allStocks  = data.stocks || [];
-    document.getElementById('updatedAt').textContent =
-      `更新：${data.updated_at||''}｜共${allStocks.length}檔`;
+    const res=await fetch('data/stocks.json?t='+Date.now());
+    const d=await res.json();
+    allStocks=d.stocks||[];
+    document.getElementById('updatedAt').textContent=`更新：${d.updated_at||''}｜${allStocks.length}檔`;
+    buildSectorButtons();
     applyFilters();
-  } catch(e){
-    document.getElementById('stockGrid').innerHTML =
-      '<div class="empty"><p>⚠ 無法載入資料，請先跑一次 GitHub Actions</p></div>';
+  }catch(e){
+    document.getElementById('stockGrid').innerHTML='<div class="empty"><p>⚠ 無法載入資料，請先跑 GitHub Actions</p></div>';
   }
 }
 
-// 載入某 batch 的 K 棒
 async function loadBatch(batchId){
   if(batchCache[batchId]) return batchCache[batchId];
-  const res  = await fetch(`data/stocks_${batchId}.json?t=`+Date.now());
-  const data = await res.json();
-  const map  = new Map();
-  for(const s of (data.stocks||[])) map.set(s.symbol, s.candles||[]);
-  batchCache[batchId] = map;
+  const res=await fetch(`data/stocks_${batchId}.json?t=`+Date.now());
+  const d=await res.json();
+  const map=new Map();
+  for(const s of(d.stocks||[])) map.set(s.symbol,s.candles||[]);
+  batchCache[batchId]=map;
   return map;
 }
 
-// ── 篩選 & 排序 ──────────────────────────
+// ══════════════════════════════════════════════
+//  類股按鈕
+// ══════════════════════════════════════════════
+function buildSectorButtons(){
+  const wrap=document.getElementById('sectorWrap');
+  // 收集實際出現的大類
+  const sectorSet=new Set();
+  allStocks.forEach(s=>{
+    for(const[big,list]of Object.entries(SECTOR_MAP)){
+      if(list.includes(s.group)) sectorSet.add(big);
+    }
+  });
+  sectorSet.forEach(big=>{
+    const btn=document.createElement('button');
+    btn.className='sector-btn'; btn.dataset.sector=big; btn.textContent=big;
+    btn.addEventListener('click',()=>{
+      activeSector=activeSector===big?'':big;
+      document.querySelectorAll('.sector-btn').forEach(b=>b.classList.toggle('active',b.dataset.sector===activeSector||(activeSector===''&&b.dataset.sector==='')));
+      applyFilters();
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+// ══════════════════════════════════════════════
+//  篩選 & 排序
+// ══════════════════════════════════════════════
 function applyFilters(){
-  const flags = [...document.querySelectorAll('.filter-item input:checked')].map(c=>c.dataset.flag);
-  const q     = searchTerm.toLowerCase();
-  filtered = allStocks.filter(s=>{
-    if(q){ const cd=codeOnly(s.symbol).toLowerCase(), nm=(s.name||'').toLowerCase(); if(!cd.includes(q)&&!nm.includes(q)) return false; }
-    if(flags.length && !flags.every(f=>s.flags&&s.flags[f])) return false;
+  const flags=[...document.querySelectorAll('.filter-item input:checked')].map(c=>c.dataset.flag);
+  const q=searchTerm.toLowerCase();
+
+  filtered=allStocks.filter(s=>{
+    if(q){const cd=codeOnly(s.symbol).toLowerCase(),nm=(s.name||'').toLowerCase();if(!cd.includes(q)&&!nm.includes(q))return false;}
+    if(activeSector){
+      const list=SECTOR_MAP[activeSector]||[];
+      if(!list.includes(s.group)) return false;
+    }
+    if(flags.length&&!flags.every(f=>s.flags&&s.flags[f])) return false;
     return true;
   });
+
   filtered.sort((a,b)=>{
-    if(sortMode==='change_desc') return (b.chg||0)-(a.chg||0);
-    if(sortMode==='change_asc')  return (a.chg||0)-(b.chg||0);
+    if(sortMode==='chg_d')  return (b.chg||0)-(a.chg||0);
+    if(sortMode==='chg_a')  return (a.chg||0)-(b.chg||0);
+    if(sortMode==='price_d')return (b.lc||0)-(a.lc||0);
+    if(sortMode==='price_a')return (a.lc||0)-(b.lc||0);
     return a.symbol.localeCompare(b.symbol);
   });
-  document.getElementById('matchCount').textContent = filtered.length;
-  currentPage = 1;
-  renderPagination();
-  renderPage();
+
+  document.getElementById('matchCount').textContent=filtered.length;
+  currentPage=1; renderPagination(); renderPage();
 }
 
-// ── 分頁 ─────────────────────────────────
+// ══════════════════════════════════════════════
+//  分頁
+// ══════════════════════════════════════════════
 function renderPagination(){
-  const total = Math.ceil(filtered.length/PAGE_SIZE);
-  const pg    = document.getElementById('pagination');
+  const total=Math.ceil(filtered.length/PAGE_SIZE);
+  const pg=document.getElementById('pagination');
   if(total<=1){pg.innerHTML='';return;}
-  const start=Math.max(1,currentPage-4), end=Math.min(total,start+8);
-  let html='';
-  if(start>1) html+=`<button class="page-btn" onclick="goPage(1)">1</button><span class="page-info">…</span>`;
-  for(let i=start;i<=end;i++) html+=`<button class="page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`;
-  if(end<total) html+=`<span class="page-info">…</span><button class="page-btn" onclick="goPage(${total})">${total}</button>`;
-  html+=`<span class="page-info" style="margin-left:4px">${currentPage}/${total}頁・${filtered.length}檔</span>`;
-  pg.innerHTML=html;
+  const start=Math.max(1,currentPage-4),end=Math.min(total,start+8);
+  let h='';
+  if(start>1)h+=`<button class="page-btn" onclick="goPage(1)">1</button><span class="page-info">…</span>`;
+  for(let i=start;i<=end;i++)h+=`<button class="page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`;
+  if(end<total)h+=`<span class="page-info">…</span><button class="page-btn" onclick="goPage(${total})">${total}</button>`;
+  h+=`<span class="page-info" style="margin-left:6px">${currentPage}/${total}頁・${filtered.length}檔</span>`;
+  pg.innerHTML=h;
 }
-function goPage(n){ currentPage=n; renderPagination(); renderPage(); window.scrollTo({top:56,behavior:'smooth'}); }
+function goPage(n){currentPage=n;renderPagination();renderPage();window.scrollTo({top:52,behavior:'smooth'});}
 
-// ── 渲染卡片 ─────────────────────────────
+// ══════════════════════════════════════════════
+//  渲染卡片
+// ══════════════════════════════════════════════
 function renderPage(){
-  const grid  = document.getElementById('stockGrid');
-  const start = (currentPage-1)*PAGE_SIZE;
-  const page  = filtered.slice(start, start+PAGE_SIZE);
-  if(!page.length){ grid.innerHTML='<div class="empty"><p>沒有符合條件的股票</p></div>'; return; }
+  const grid=document.getElementById('stockGrid');
+  const start=(currentPage-1)*PAGE_SIZE;
+  const page=filtered.slice(start,start+PAGE_SIZE);
+  if(!page.length){grid.innerHTML='<div class="empty"><p>沒有符合條件的股票</p></div>';return;}
 
-  grid.innerHTML = page.map((s,i)=>{
-    const pct=s.chg, cls=pct>0?'up':pct<0?'down':'flat', sign=pct>0?'+':'';
+  grid.innerHTML=page.map((s,i)=>{
+    const pct=s.chg,cls=pct>0?'up':pct<0?'down':'flat',sign=pct>0?'+':'';
     const code=codeOnly(s.symbol);
     const flagsHtml=Object.entries(s.flags||{}).filter(([k,v])=>v&&FLAG_LABELS[k]).slice(0,4)
-      .map(([k])=>{ const [l,t]=FLAG_LABELS[k]; return `<span class="flag-tag flag-${t}">${l}</span>`; }).join('');
-    const ind = s.ind||{};
-    return `<div class="stock-card">
+      .map(([k])=>{const[l,t]=FLAG_LABELS[k];return`<span class="flag-tag flag-${t}">${l}</span>`;}).join('');
+    return `<div class="stock-card" onclick="openModal(${start+i})">
       <div class="card-header">
-        <div class="card-left" onclick="openModal(${start+i})">
+        <div class="card-left">
           <div class="card-symbol">${code}</div>
           <div class="card-name">${s.name||''}</div>
+          <div class="card-group">${s.group||''}</div>
         </div>
         <div class="card-right">
-          <div style="text-align:right;cursor:pointer" onclick="openModal(${start+i})">
-            <div class="card-close ${cls}">${s.lc??'-'}</div>
-            <div class="card-change ${cls}">${sign}${pct!=null?pct.toFixed(2)+'%':'-'}</div>
-          </div>
-          <a class="cnyes-link" href="${cnyesUrl(s.symbol)}" target="_blank" rel="noopener">📰 鉅亨</a>
+          <div class="card-close ${cls}">${s.lc??'-'}</div>
+          <div class="card-change ${cls}">${sign}${pct!=null?pct.toFixed(2)+'%':'-'}</div>
+          <a class="cnyes-link" href="${cnyesUrl(s.symbol)}" target="_blank" rel="noopener" onclick="e=>e.stopPropagation()">📰 鉅亨</a>
         </div>
       </div>
-      <div class="card-flags">${flagsHtml||'<span style="font-size:11px;color:var(--text3)">點擊查看 K 線</span>'}</div>
+      <div class="card-flags">${flagsHtml||'<span style="font-size:10px;color:var(--text3)">點擊查看 K 線 →</span>'}</div>
     </div>`;
   }).join('');
 }
 
-// ── Modal ────────────────────────────────
+// ══════════════════════════════════════════════
+//  Modal
+// ══════════════════════════════════════════════
 async function openModal(idx){
-  const s = filtered[idx];
+  currentStockIdx=idx;
+  const s=filtered[idx];
   if(!s) return;
-  currentModalStock = s;
-  const code = codeOnly(s.symbol);
 
-  document.getElementById('mSymbol').textContent = code;
-  document.getElementById('mName').textContent   = s.name||'';
-  document.getElementById('mLinks').innerHTML = `
+  const code=codeOnly(s.symbol);
+  const pct=s.chg,cls=pct>0?'up':pct<0?'down':'flat',sign=pct>0?'+':'';
+
+  document.getElementById('mSymbol').textContent=code;
+  document.getElementById('mName').textContent=s.name||'';
+  document.getElementById('mGroup').textContent=s.group||'';
+  document.getElementById('mPrice').className='modal-price '+cls;
+  document.getElementById('mPrice').textContent=s.lc??'-';
+  document.getElementById('mChg').className='modal-chg '+cls;
+  document.getElementById('mChg').textContent=`${sign}${pct!=null?pct.toFixed(2)+'%':'-'}`;
+
+  document.getElementById('mLinks').innerHTML=`
     <a class="modal-link" href="${cnyesUrl(s.symbol)}" target="_blank" rel="noopener">📰 鉅亨行情</a>
-    <a class="modal-link" href="https://www.cnyes.com/twstock/${code}/news" target="_blank" rel="noopener">📰 鉅亨新聞</a>`;
-  document.querySelectorAll('.range-btn').forEach(b=>b.classList.toggle('active', b.dataset.range==='120'));
+    <a class="modal-link" href="https://www.cnyes.com/twstock/${code}/news" target="_blank" rel="noopener">📰 新聞</a>
+    <a class="modal-link" href="favorites.html#add=${s.symbol}" onclick="addFavorite(event,'${s.symbol}','${s.name||''}',${s.lc||0})">⭐ 加入最愛</a>
+    <div class="nav-arrows">
+      <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">◀ 上一檔</button>
+      <button class="nav-btn" id="nextBtn" onclick="navigate(1)">下一檔 ▶</button>
+    </div>`;
+
+  document.querySelectorAll('.range-btn').forEach(b=>b.classList.toggle('active',b.dataset.range==='120'));
   document.getElementById('modalStats').innerHTML='';
-  document.getElementById('modalChart').innerHTML =
-    '<div class="chart-loading"><div class="spinner-sm"></div><span>載入 K 線資料…</span></div>';
+  document.getElementById('ohlcvBar').innerHTML='<span style="color:var(--text3)">移動滑鼠到 K 棒上顯示 開/高/低/收/量</span>';
+  document.getElementById('modalChart').innerHTML='<div class="chart-loading"><div class="spinner-sm"></div><span>載入 K 線資料…</span></div>';
   document.getElementById('modalOverlay').classList.add('open');
 
-  // 非同步載入 K 棒
   try{
-    const batchId = getBatch(s);
-    const map     = await loadBatch(batchId);
-    const rawCandles = map.get(s.symbol) || [];
-    // rawCandles 格式：[[date,o,h,l,c,v], ...]
-    await buildModalChart(s, rawCandles, 120);
-  } catch(e){
-    document.getElementById('modalChart').innerHTML =
-      '<div class="chart-loading" style="color:var(--red)">⚠ K線載入失敗</div>';
+    const map=await loadBatch(s.batch||'A');
+    const raw=map.get(s.symbol)||[];
+    s._rawCandles=raw;
+    await buildModalChart(s,raw,120);
+  }catch(e){
+    document.getElementById('modalChart').innerHTML='<div class="chart-loading" style="color:#e84040">⚠ K線載入失敗</div>';
   }
 }
 
-async function buildModalChart(stock, rawCandles, range){
+function navigate(dir){
+  const next=currentStockIdx+dir;
+  if(next<0||next>=filtered.length) return;
+  openModal(next);
+}
+
+// 加入最愛（localStorage）
+function addFavorite(e,symbol,name,price){
+  e.preventDefault();
+  const favs=JSON.parse(localStorage.getItem('tw_favorites')||'[]');
+  if(!favs.find(f=>f.symbol===symbol)){
+    favs.push({symbol,name,addedAt:new Date().toISOString(),buyPrice:null,buyDate:null,shares:null});
+    localStorage.setItem('tw_favorites',JSON.stringify(favs));
+  }
+  alert(`✅ ${name}(${codeOnly(symbol)}) 已加入最愛！\n可到「我的最愛」頁面設定買入資訊。`);
+}
+
+// ══════════════════════════════════════════════
+//  建立 K 線圖（含 OHLCV tooltip）
+// ══════════════════════════════════════════════
+async function buildModalChart(stock,rawCandles,range){
   if(!rawCandles||!rawCandles.length){
-    document.getElementById('modalChart').innerHTML =
-      '<div class="chart-loading" style="color:var(--text3)">此股票無 K 線資料</div>';
+    document.getElementById('modalChart').innerHTML='<div class="chart-loading" style="color:var(--text3)">此股票無 K 線資料</div>';
     return;
   }
+  let candles=rawCandles;
+  if(range>0) candles=candles.slice(-range);
 
-  let candles = rawCandles;
-  if(range>0) candles = candles.slice(-range);
+  const closes=candles.map(c=>c[4]);
+  const ma5=calcSMA(closes,5),ma20=calcSMA(closes,20),ma60=calcSMA(closes,60);
+  const rsi14=calcRSI(closes,14);
+  const{line:macdLine,sig:macdSig}=calcMACD(closes);
+  const bb=calcBB(closes,20);
 
-  const closes = candles.map(c=>c[4]);
-  const ma5    = calcSMA(closes,5);
-  const ma20   = calcSMA(closes,20);
-  const ma60   = calcSMA(closes,60);
-  const rsi14  = calcRSI(closes,14);
-  const {line:macdLine, sig:macdSig} = calcMACD(closes);
-  const bb     = calcBB(closes,20);
-
-  const el = document.getElementById('modalChart');
+  const el=document.getElementById('modalChart');
   el.innerHTML='';
   if(modalChartObj){try{modalChartObj.remove()}catch(e){}}
 
-  modalChartObj = LightweightCharts.createChart(el,{
-    width:el.clientWidth||900, height:420,
+  modalChartObj=LightweightCharts.createChart(el,{
+    width:el.clientWidth||920,height:400,
     layout:{background:{color:'#141720'},textColor:'#8892aa'},
     grid:{vertLines:{color:'#1c2030'},horzLines:{color:'#1c2030'}},
     rightPriceScale:{borderColor:'#252a3a'},
@@ -442,52 +601,77 @@ async function buildModalChart(stock, rawCandles, range){
     crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
   });
 
-  const cs = modalChartObj.addCandlestickSeries({upColor:'#26a69a',downColor:'#ef5350',borderUpColor:'#26a69a',borderDownColor:'#ef5350',wickUpColor:'#26a69a',wickDownColor:'#ef5350'});
+  // ★ 台灣慣例：漲紅跌綠
+  const cs=modalChartObj.addCandlestickSeries({
+    upColor:'#e84040',downColor:'#28a745',
+    borderUpColor:'#e84040',borderDownColor:'#28a745',
+    wickUpColor:'#e84040',wickDownColor:'#28a745',
+  });
   cs.setData(candles.map(c=>({time:c[0],open:c[1],high:c[2],low:c[3],close:c[4]})));
+
+  // ★ OHLCV tooltip
+  modalChartObj.subscribeCrosshairMove(param=>{
+    if(!param.time||!param.seriesData){
+      document.getElementById('ohlcvBar').innerHTML='<span style="color:var(--text3)">移動滑鼠到 K 棒上</span>';
+      return;
+    }
+    const d=param.seriesData.get(cs);
+    if(!d) return;
+    // 找對應的 volume
+    const idx=candles.findIndex(c=>c[0]===param.time);
+    const vol=idx>=0?candles[idx][5]:'-';
+    const oc=d.close>=d.open?'up':'down';
+    document.getElementById('ohlcvBar').innerHTML=`
+      <div class="ohlcv-item"><span>日期 </span>${param.time}</div>
+      <div class="ohlcv-item"><span>開 </span><b class="${oc}">${d.open}</b></div>
+      <div class="ohlcv-item"><span>高 </span><b style="color:var(--up)">${d.high}</b></div>
+      <div class="ohlcv-item"><span>低 </span><b style="color:var(--down)">${d.low}</b></div>
+      <div class="ohlcv-item"><span>收 </span><b class="${oc}">${d.close}</b></div>
+      <div class="ohlcv-item"><span>量 </span>${vol.toLocaleString()}</div>`;
+  });
 
   const addLine=(color,data,title,style=0)=>{
     const s=modalChartObj.addLineSeries({color,lineWidth:1,title,lineStyle:style});
     s.setData(data.filter(d=>d.value!=null));
   };
-  addLine('#f0b840', candles.map((c,i)=>({time:c[0],value:ma5[i]})),   'MA5');
-  addLine('#4f8ef7', candles.map((c,i)=>({time:c[0],value:ma20[i]})),  'MA20');
-  addLine('#b060f0', candles.map((c,i)=>({time:c[0],value:ma60[i]})),  'MA60');
-  addLine('rgba(240,184,64,.4)', candles.map((c,i)=>({time:c[0],value:bb[i].u})), 'BB上', 2);
-  addLine('rgba(240,184,64,.4)', candles.map((c,i)=>({time:c[0],value:bb[i].l})), 'BB下', 2);
-
+  addLine('#f0b840',candles.map((c,i)=>({time:c[0],value:ma5[i]})),'MA5');
+  addLine('#4f8ef7',candles.map((c,i)=>({time:c[0],value:ma20[i]})),'MA20');
+  addLine('#b060f0',candles.map((c,i)=>({time:c[0],value:ma60[i]})),'MA60');
+  addLine('rgba(240,184,64,.4)',candles.map((c,i)=>({time:c[0],value:bb[i].u})),'BB上',2);
+  addLine('rgba(240,184,64,.4)',candles.map((c,i)=>({time:c[0],value:bb[i].l})),'BB下',2);
   modalChartObj.timeScale().fitContent();
 
-  // 最後一根指標數值
-  const lastClose = closes[closes.length-1];
-  const lma5=ma5[ma5.length-1], lma20=ma20[ma20.length-1], lma60=ma60[ma60.length-1];
-  const lrsi=rsi14[rsi14.length-1], lmacd=macdLine[macdLine.length-1];
-  const lbbu=bb[bb.length-1].u, lbbl=bb[bb.length-1].l;
-  const pct=stock.chg, sign=pct>0?'+':'', cls=pct>0?'up':pct<0?'down':'flat';
+  // 統計數字
+  const lc=closes[closes.length-1];
+  const lr14=rsi14[rsi14.length-1],lmacd=macdLine[macdLine.length-1];
+  const lma20=ma20[ma20.length-1],lma60=ma60[ma60.length-1];
+  const lbb=bb[bb.length-1];
+  const pct=stock.chg,sign=pct>0?'+':'',cls=pct>0?'up':pct<0?'down':'flat';
 
   document.getElementById('modalStats').innerHTML=`
-    <div class="stat-box"><div class="stat-label">收盤價</div><div class="stat-value ${cls}">${lastClose?.toFixed(2)??'-'}</div></div>
+    <div class="stat-box"><div class="stat-label">收盤價</div><div class="stat-value ${cls}">${lc?.toFixed(2)??'-'}</div></div>
     <div class="stat-box"><div class="stat-label">漲跌幅</div><div class="stat-value ${cls}">${sign}${pct!=null?pct.toFixed(2)+'%':'-'}</div></div>
-    <div class="stat-box"><div class="stat-label">RSI(14)</div><div class="stat-value">${lrsi!=null?lrsi.toFixed(1):'-'}</div></div>
+    <div class="stat-box"><div class="stat-label">RSI(14)</div><div class="stat-value">${lr14!=null?lr14.toFixed(1):'-'}</div></div>
     <div class="stat-box"><div class="stat-label">MACD</div><div class="stat-value">${lmacd!=null?lmacd.toFixed(3):'-'}</div></div>
     <div class="stat-box"><div class="stat-label">MA20</div><div class="stat-value">${lma20!=null?lma20.toFixed(2):'-'}</div></div>
     <div class="stat-box"><div class="stat-label">MA60</div><div class="stat-value">${lma60!=null?lma60.toFixed(2):'-'}</div></div>
-    <div class="stat-box"><div class="stat-label">布林上軌</div><div class="stat-value">${lbbu!=null?lbbu.toFixed(2):'-'}</div></div>
-    <div class="stat-box"><div class="stat-label">布林下軌</div><div class="stat-value">${lbbl!=null?lbbl.toFixed(2):'-'}</div></div>`;
+    <div class="stat-box"><div class="stat-label">布林上軌</div><div class="stat-value">${lbb.u!=null?lbb.u.toFixed(2):'-'}</div></div>
+    <div class="stat-box"><div class="stat-label">布林下軌</div><div class="stat-value">${lbb.l!=null?lbb.l.toFixed(2):'-'}</div></div>`;
 
-  // 儲存 rawCandles 以便 range 切換
-  currentModalStock._rawCandles = rawCandles;
+  stock._rawCandles=rawCandles;
 }
 
-// range 切換
-document.getElementById('rangeBar').addEventListener('click', async e=>{
+// ══════════════════════════════════════════════
+//  事件監聽
+// ══════════════════════════════════════════════
+// Range 切換
+document.querySelector('.chart-controls').addEventListener('click',async e=>{
   const btn=e.target.closest('.range-btn');
-  if(!btn||!currentModalStock) return;
+  if(!btn) return;
   document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const range=parseInt(btn.dataset.range);
-  if(currentModalStock._rawCandles){
-    await buildModalChart(currentModalStock, currentModalStock._rawCandles, range);
-  }
+  const s=filtered[currentStockIdx];
+  if(s?._rawCandles) await buildModalChart(s,s._rawCandles,parseInt(btn.dataset.range));
 });
 
 document.getElementById('modalClose').addEventListener('click',()=>
@@ -496,10 +680,18 @@ document.getElementById('modalOverlay').addEventListener('click',e=>{
   if(e.target===e.currentTarget) e.currentTarget.classList.remove('open');
 });
 
+// ★ 鍵盤左右切換
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('modalOverlay').classList.contains('open')) return;
+  if(e.key==='ArrowLeft')  navigate(-1);
+  if(e.key==='ArrowRight') navigate(1);
+  if(e.key==='Escape') document.getElementById('modalOverlay').classList.remove('open');
+});
+
 // 搜尋
 let st;
 document.getElementById('searchInput').addEventListener('input',e=>{
-  clearTimeout(st); st=setTimeout(()=>{ searchTerm=e.target.value.trim(); applyFilters(); },200);
+  clearTimeout(st);st=setTimeout(()=>{searchTerm=e.target.value.trim();applyFilters();},200);
 });
 
 // 排序
@@ -511,11 +703,13 @@ document.querySelectorAll('.sort-btn').forEach(btn=>{
   });
 });
 
-// 篩選
+// 篩選條件
 document.querySelectorAll('.filter-item input').forEach(cb=>cb.addEventListener('change',applyFilters));
 document.getElementById('resetBtn').addEventListener('click',()=>{
   document.querySelectorAll('.filter-item input').forEach(cb=>cb.checked=false);
-  document.getElementById('searchInput').value=''; searchTerm=''; applyFilters();
+  document.getElementById('searchInput').value=''; searchTerm=''; activeSector='';
+  document.querySelectorAll('.sector-btn').forEach(b=>b.classList.toggle('active',b.dataset.sector===''));
+  applyFilters();
 });
 
 loadData();

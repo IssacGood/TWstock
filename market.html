@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>大盤/期貨 — TWSTOCK</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{--bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--border:#252a3a;--accent:#00c896;--accent2:#4f8ef7;--text:#e8eaf0;--text2:#8892aa;--text3:#55607a;--font:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
+.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px}
+.topbar-nav{display:flex;gap:2px}
+.topbar-nav a{color:var(--text2);text-decoration:none;font-size:13px;padding:4px 10px;border-radius:6px;transition:all .15s;white-space:nowrap}
+.topbar-nav a:hover{color:var(--text);background:var(--bg3)}
+.topbar-nav a.active{color:var(--accent);background:rgba(0,200,150,.1)}
+.container{padding:20px 16px;max-width:1400px;margin:0 auto}
+h2{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+h2::before{content:'';width:3px;height:14px;background:var(--accent2);border-radius:2px;display:block}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.chart-card-title{padding:12px 16px;font-size:14px;font-weight:600;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.chart-inner{height:400px}
+.chart-inner iframe{width:100%;height:100%;border:none}
+@media(max-width:900px){.chart-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-logo">TWSTOCK</div>
+  <nav class="topbar-nav">
+    <a href="index.html">選股</a>
+    <a href="watchlist.html">批量搜尋</a>
+    <a href="favorites.html">我的最愛</a>
+    <a href="market.html" class="active">大盤/期貨</a>
+    <a href="stats.html">統計</a>
+    <a href="sectors.html">類股排行</a>
+    <a href="ai.html">AI選股</a>
+    <a href="fear.html">貪婪指數</a>
+  </nav>
+</div>
+
+<div class="container">
+  <div class="chart-grid">
+
+    <!-- 加權指數 -->
+    <div class="chart-card">
+      <div class="chart-card-title">📈 台灣加權指數 (TWII)</div>
+      <div class="chart-inner">
+        <div class="tradingview-widget-container" style="height:100%">
+          <div id="tv1" style="height:100%"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          {"autosize":true,"symbol":"TWSE:TAIEX","interval":"D","timezone":"Asia/Taipei","theme":"dark","style":"1","locale":"zh_TW","backgroundColor":"#141720","gridColor":"#1c2030","hide_top_toolbar":false,"hide_legend":false,"save_image":false,"calendar":false,"hide_volume":false,"support_host":"https://www.tradingview.com","container_id":"tv1"}
+          </script>
+        </div>
+      </div>
+    </div>
+
+    <!-- 台指期 -->
+    <div class="chart-card">
+      <div class="chart-card-title">🔮 台指期近月 (TX1!)</div>
+      <div class="chart-inner">
+        <div class="tradingview-widget-container" style="height:100%">
+          <div id="tv2" style="height:100%"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          {"autosize":true,"symbol":"TAIFEX:TX1!","interval":"D","timezone":"Asia/Taipei","theme":"dark","style":"1","locale":"zh_TW","backgroundColor":"#141720","gridColor":"#1c2030","hide_top_toolbar":false,"hide_legend":false,"save_image":false,"calendar":false,"hide_volume":false,"support_host":"https://www.tradingview.com","container_id":"tv2"}
+          </script>
+        </div>
+      </div>
+    </div>
+
+    <!-- 上櫃指數 -->
+    <div class="chart-card">
+      <div class="chart-card-title">📊 上櫃指數 (OTC)</div>
+      <div class="chart-inner">
+        <div class="tradingview-widget-container" style="height:100%">
+          <div id="tv3" style="height:100%"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          {"autosize":true,"symbol":"TWSE:OTCINDEX","interval":"D","timezone":"Asia/Taipei","theme":"dark","style":"1","locale":"zh_TW","backgroundColor":"#141720","gridColor":"#1c2030","hide_top_toolbar":false,"hide_legend":false,"save_image":false,"calendar":false,"hide_volume":false,"support_host":"https://www.tradingview.com","container_id":"tv3"}
+          </script>
+        </div>
+      </div>
+    </div>
+
+    <!-- 小台指期 -->
+    <div class="chart-card">
+      <div class="chart-card-title">🔮 小台指期 (MTX1!)</div>
+      <div class="chart-inner">
+        <div class="tradingview-widget-container" style="height:100%">
+          <div id="tv4" style="height:100%"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          {"autosize":true,"symbol":"TAIFEX:MTX1!","interval":"D","timezone":"Asia/Taipei","theme":"dark","style":"1","locale":"zh_TW","backgroundColor":"#141720","gridColor":"#1c2030","hide_top_toolbar":false,"hide_legend":false,"save_image":false,"calendar":false,"hide_volume":false,"support_host":"https://www.tradingview.com","container_id":"tv4"}
+          </script>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

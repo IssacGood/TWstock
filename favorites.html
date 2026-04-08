@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>我的最愛 — TWSTOCK</title>
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{--bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--border:#252a3a;--accent:#00c896;--accent2:#4f8ef7;--gold:#f0b840;--text:#e8eaf0;--text2:#8892aa;--text3:#55607a;--up:#e84040;--down:#28a745;--radius:8px;--font:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
+.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px}
+.topbar-nav{display:flex;gap:2px}
+.topbar-nav a{color:var(--text2);text-decoration:none;font-size:13px;padding:4px 10px;border-radius:6px;white-space:nowrap;transition:all .15s}
+.topbar-nav a:hover{color:var(--text);background:var(--bg3)}
+.topbar-nav a.active{color:var(--accent);background:rgba(0,200,150,.1)}
+.container{max-width:1200px;margin:0 auto;padding:24px 16px}
+h1{font-size:20px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+h1 span{font-size:14px;color:var(--text2);font-weight:400}
+
+/* 總覽 */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+.summary-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.summary-label{font-size:11px;color:var(--text3);margin-bottom:4px}
+.summary-value{font-family:var(--mono);font-size:20px;font-weight:700}
+
+/* 表格 */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:10px 14px;text-align:left;font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid rgba(37,42,58,.5);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.sym{font-family:var(--mono);font-weight:600;color:var(--accent2)}
+.name{color:var(--text2);font-size:12px}
+.num{font-family:var(--mono)}
+.up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--text2)}
+
+input[type=number],input[type=date]{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;font-family:var(--mono);padding:4px 8px;width:110px;outline:none;transition:border-color .2s}
+input[type=number]:focus,input[type=date]:focus{border-color:var(--accent2)}
+input[type=number]::placeholder{color:var(--text3)}
+
+.btn{border:none;border-radius:5px;font-size:12px;font-family:var(--font);padding:5px 10px;cursor:pointer;transition:all .15s}
+.btn-del{background:rgba(232,64,64,.15);color:var(--up)}
+.btn-del:hover{background:rgba(232,64,64,.3)}
+.btn-save{background:rgba(0,200,150,.15);color:var(--accent)}
+.btn-save:hover{background:rgba(0,200,150,.3)}
+.btn-add{background:var(--accent);color:#0d0f14;font-weight:700;padding:8px 18px;font-size:14px}
+.btn-add:hover{opacity:.85}
+
+.add-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:16px;border-top:1px solid var(--border)}
+.add-row input{width:120px}
+.add-row input[placeholder="股票代碼"]{width:100px}
+
+.empty-fav{text-align:center;padding:60px;color:var(--text3)}
+.empty-fav .icon{font-size:48px;margin-bottom:16px;opacity:.4}
+
+.profit-bar{height:4px;border-radius:2px;margin-top:3px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-logo">TWSTOCK</div>
+  <nav class="topbar-nav">
+    <a href="index.html">選股</a>
+    <a href="watchlist.html">批量搜尋</a>
+    <a href="favorites.html" class="active">我的最愛</a>
+    <a href="market.html">大盤/期貨</a>
+    <a href="stats.html">統計</a>
+    <a href="sectors.html">類股排行</a>
+    <a href="ai.html">AI選股</a>
+    <a href="fear.html">貪婪指數</a>
+  </nav>
+</div>
+
+<div class="container">
+  <h1>⭐ 我的最愛 <span>庫存盈虧追蹤（資料儲存於本地）</span></h1>
+
+  <!-- 總覽 -->
+  <div class="summary-grid" id="summaryGrid"></div>
+
+  <!-- 清單 -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>代碼</th><th>名稱</th><th>現價</th><th>漲跌%</th>
+          <th>買入價</th><th>買入日期</th><th>張數</th>
+          <th>成本</th><th>市值</th><th>損益</th><th>損益%</th><th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="favTable"></tbody>
+    </table>
+    <div class="add-row">
+      <input type="text" id="addSymbol" placeholder="股票代碼" maxlength="8" style="text-transform:uppercase">
+      <input type="number" id="addBuyPrice" placeholder="買入價格" min="0" step="0.01">
+      <input type="date" id="addBuyDate">
+      <input type="number" id="addShares" placeholder="張數" min="1" step="1">
+      <button class="btn btn-add" onclick="addFav()">+ 加入最愛</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY='tw_favorites';
+let stockData={};  // symbol -> {lc, chg}
+
+function getFavs(){ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }
+function saveFavs(f){ localStorage.setItem(STORAGE_KEY,JSON.stringify(f)); }
+const codeOnly=s=>s.replace('.TWO','').replace('.TW','');
+
+async function loadPrices(){
+  try{
+    const res=await fetch('data/stocks.json?t='+Date.now());
+    const d=await res.json();
+    (d.stocks||[]).forEach(s=>{ stockData[s.symbol]=s; });
+  }catch(e){}
+  render();
+}
+
+function findStock(symbol){
+  // 嘗試 .TW 和 .TWO
+  return stockData[symbol]||stockData[symbol+'.TW']||stockData[symbol+'.TWO']||null;
+}
+
+function render(){
+  const favs=getFavs();
+  const tbody=document.getElementById('favTable');
+
+  if(!favs.length){
+    tbody.innerHTML=`<tr><td colspan="12"><div class="empty-fav"><div class="icon">⭐</div><p>還沒有最愛股票<br>從選股頁面點 K 線圖，按「加入最愛」</p></div></td></tr>`;
+    document.getElementById('summaryGrid').innerHTML='';
+    return;
+  }
+
+  let totalCost=0,totalValue=0,totalPnl=0;
+  let rows='';
+
+  favs.forEach((fav,i)=>{
+    const s=findStock(fav.symbol);
+    const cur=s?.lc??null;
+    const chg=s?.chg??null;
+    const chgCls=chg>0?'up':chg<0?'down':'flat';
+    const chgStr=chg!=null?(chg>0?'+':'')+chg.toFixed(2)+'%':'-';
+
+    const bp=parseFloat(fav.buyPrice)||0;
+    const shares=parseInt(fav.shares)||0;
+    const cost=bp*shares*1000;
+    const value=cur!=null?cur*shares*1000:null;
+    const pnl=value!=null?value-cost:null;
+    const pnlPct=cost>0&&pnl!=null?pnl/cost*100:null;
+    const pnlCls=pnl>0?'up':pnl<0?'down':'flat';
+    const sign=pnl>0?'+':'';
+
+    if(cost>0) totalCost+=cost;
+    if(value!=null) totalValue+=value;
+    if(pnl!=null) totalPnl+=pnl;
+
+    const code=codeOnly(fav.symbol);
+    rows+=`<tr>
+      <td><a class="sym" href="index.html" style="text-decoration:none">${code}</a></td>
+      <td><div class="name">${fav.name||''}</div></td>
+      <td class="num ${chgCls}">${cur??'-'}</td>
+      <td class="num ${chgCls}">${chgStr}</td>
+      <td><input type="number" value="${fav.buyPrice||''}" placeholder="買入價" min="0" step="0.01" onchange="updateField(${i},'buyPrice',this.value)" style="width:90px"></td>
+      <td><input type="date" value="${fav.buyDate||''}" onchange="updateField(${i},'buyDate',this.value)" style="width:130px"></td>
+      <td><input type="number" value="${fav.shares||''}" placeholder="張數" min="1" onchange="updateField(${i},'shares',this.value)" style="width:70px"></td>
+      <td class="num">${cost>0?'$'+(cost/10000).toFixed(1)+'萬':'-'}</td>
+      <td class="num">${value!=null?'$'+(value/10000).toFixed(1)+'萬':'-'}</td>
+      <td class="num ${pnlCls}">${pnl!=null?sign+'$'+(Math.abs(pnl)/10000).toFixed(1)+'萬':'-'}</td>
+      <td class="num ${pnlCls}">${pnlPct!=null?(pnlPct>0?'+':'')+pnlPct.toFixed(1)+'%':'-'}</td>
+      <td><button class="btn btn-del" onclick="removeFav(${i})">移除</button></td>
+    </tr>`;
+  });
+  tbody.innerHTML=rows;
+
+  // 總覽
+  const pnlPct=totalCost>0?totalPnl/totalCost*100:0;
+  const pnlCls=totalPnl>0?'up':totalPnl<0?'down':'flat';
+  document.getElementById('summaryGrid').innerHTML=`
+    <div class="summary-box"><div class="summary-label">持倉檔數</div><div class="summary-value" style="color:var(--accent2)">${favs.filter(f=>f.shares).length}</div></div>
+    <div class="summary-box"><div class="summary-label">總成本</div><div class="summary-value">$${(totalCost/10000).toFixed(1)}萬</div></div>
+    <div class="summary-box"><div class="summary-label">總市值</div><div class="summary-value">$${(totalValue/10000).toFixed(1)}萬</div></div>
+    <div class="summary-box"><div class="summary-label">總損益</div><div class="summary-value ${pnlCls}">${totalPnl>=0?'+':''}$${(Math.abs(totalPnl)/10000).toFixed(1)}萬</div></div>
+    <div class="summary-box"><div class="summary-label">總報酬率</div><div class="summary-value ${pnlCls}">${pnlPct>=0?'+':''}${pnlPct.toFixed(1)}%</div></div>`;
+}
+
+function updateField(i,field,val){
+  const favs=getFavs(); favs[i][field]=val; saveFavs(favs); render();
+}
+function removeFav(i){
+  const favs=getFavs(); favs.splice(i,1); saveFavs(favs); render();
+}
+
+function addFav(){
+  let sym=document.getElementById('addSymbol').value.trim().toUpperCase();
+  if(!sym) return alert('請輸入股票代碼');
+  if(!sym.includes('.')) sym=sym+'.TW';
+  const favs=getFavs();
+  if(favs.find(f=>f.symbol===sym)) return alert('已在清單中');
+  const s=findStock(sym);
+  favs.push({symbol:sym,name:s?.name||sym,
+    buyPrice:document.getElementById('addBuyPrice').value||null,
+    buyDate:document.getElementById('addBuyDate').value||null,
+    shares:document.getElementById('addShares').value||null});
+  saveFavs(favs);
+  ['addSymbol','addBuyPrice','addBuyDate','addShares'].forEach(id=>document.getElementById(id).value='');
+  render();
+}
+
+// 從 URL hash 自動加入
+const hash=location.hash;
+if(hash.startsWith('#add=')){
+  const sym=hash.slice(5);
+  document.getElementById('addSymbol').value=codeOnly(sym);
+  history.replaceState(null,'',location.pathname);
+}
+
+loadPrices();
+</script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI選股 — TWSTOCK</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{--bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--border:#252a3a;--accent:#00c896;--accent2:#4f8ef7;--gold:#f0b840;--text:#e8eaf0;--text2:#8892aa;--text3:#55607a;--up:#e84040;--down:#28a745;--font:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font)}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
+.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px}
+.topbar-nav{display:flex;gap:2px}
+.topbar-nav a{color:var(--text2);text-decoration:none;font-size:13px;padding:4px 10px;border-radius:6px;transition:all .15s;white-space:nowrap}
+.topbar-nav a:hover{color:var(--text);background:var(--bg3)}
+.topbar-nav a.active{color:var(--accent);background:rgba(0,200,150,.1)}
+.container{padding:24px 16px;max-width:1100px;margin:0 auto}
+h1{font-size:20px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.subtitle{font-size:13px;color:var(--text2);margin-bottom:24px;line-height:1.7}
+
+.strategy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:28px}
+.strategy-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;position:relative}
+.strategy-card:hover{border-color:var(--accent2);transform:translateY(-2px)}
+.strategy-card.active{border-color:var(--accent);background:rgba(0,200,150,.06)}
+.strategy-card .check{position:absolute;top:12px;right:12px;width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .2s}
+.strategy-card.active .check{background:var(--accent);border-color:var(--accent);color:#0d0f14}
+.strategy-icon{font-size:24px;margin-bottom:8px}
+.strategy-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.strategy-desc{font-size:12px;color:var(--text2);line-height:1.6}
+.strategy-flags{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
+.flag-chip{font-size:10px;padding:1px 6px;border-radius:3px;background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+
+.run-btn{background:var(--accent);color:#0d0f14;font-weight:700;padding:12px 32px;border:none;border-radius:10px;font-size:15px;font-family:var(--font);cursor:pointer;transition:opacity .15s;margin-bottom:24px}
+.run-btn:hover{opacity:.85}
+.run-btn:disabled{opacity:.4;cursor:not-allowed}
+
+.result-section{display:none}
+.result-title{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.result-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;transition:border-color .2s}
+.result-card:hover{border-color:var(--accent2)}
+.rc-top{display:flex;justify-content:space-between;margin-bottom:6px}
+.rc-symbol{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--accent2)}
+.rc-price{font-family:var(--mono);font-size:15px;font-weight:700}
+.rc-name{font-size:12px;color:var(--text2);margin-bottom:4px}
+.rc-flags{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
+.rc-flag{font-size:10px;padding:1px 6px;border-radius:3px}
+.flag-bull{background:rgba(232,64,64,.15);color:var(--up)}
+.flag-bear{background:rgba(40,167,69,.15);color:var(--down)}
+.flag-info{background:rgba(79,142,247,.12);color:var(--accent2)}
+.rc-score{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+.score-bar{height:4px;background:var(--bg3);border-radius:2px;flex:1;overflow:hidden}
+.score-fill{height:100%;background:var(--gold);border-radius:2px}
+
+.no-result{text-align:center;padding:40px;color:var(--text3)}
+.up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--text2)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-logo">TWSTOCK</div>
+  <nav class="topbar-nav">
+    <a href="index.html">選股</a>
+    <a href="watchlist.html">批量搜尋</a>
+    <a href="favorites.html">我的最愛</a>
+    <a href="market.html">大盤/期貨</a>
+    <a href="stats.html">統計</a>
+    <a href="sectors.html">類股排行</a>
+    <a href="ai.html" class="active">AI選股</a>
+    <a href="fear.html">貪婪指數</a>
+  </nav>
+</div>
+
+<div class="container">
+  <h1>🤖 AI 選股</h1>
+  <div class="subtitle">
+    選擇一個或多個策略，系統會自動組合條件，篩選出符合的股票（目標 &lt; 10 檔）。<br>
+    純技術面分析，僅供參考，不構成投資建議。
+  </div>
+
+  <div class="strategy-grid" id="strategyGrid"></div>
+
+  <button class="run-btn" id="runBtn" onclick="runScreen()">🔍 開始篩選</button>
+
+  <div class="result-section" id="resultSection">
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-grid" id="resultGrid"></div>
+  </div>
+</div>
+
+<script>
+// 預設策略
+const STRATEGIES=[
+  {id:'momentum',icon:'🚀',name:'強勢動能',desc:'短線上漲動能強，多項技術指標同時看多',
+   flags:['above_ma20','above_ma60','ma5_above_ma20','bullish_candle','macd_bullish'],
+   bonus:['vol_surge','new_high_50']},
+  {id:'reversal',icon:'🔄',name:'超賣反彈',desc:'股價大幅下跌後出現技術面超賣，可能出現反彈',
+   flags:['rsi_oversold','near_bb_lower'],
+   bonus:['bullish_candle','above_ma20']},
+  {id:'golden',icon:'✨',name:'黃金交叉',desc:'MA5 剛剛向上穿越 MA20，短線趨勢轉強',
+   flags:['golden_cross'],
+   bonus:['vol_surge','above_ma60','macd_bullish']},
+  {id:'lowprice',icon:'💰',name:'低價潛力股',desc:'股價低於 100 元，同時站上均線，具爆發潛力',
+   flags:['price_u100','above_ma20'],
+   bonus:['golden_cross','vol_surge','macd_bullish']},
+  {id:'breakout',icon:'📈',name:'突破新高',desc:'近期創50日新高，且有成交量支撐',
+   flags:['new_high_50','vol_surge'],
+   bonus:['above_ma60','macd_bullish','bullish_candle']},
+  {id:'stable',icon:'🏦',name:'穩健趨勢',desc:'股價站上 MA20 和 MA60，長短線趨勢同步向上',
+   flags:['above_ma20','above_ma60','ma5_above_ma20'],
+   bonus:['macd_bullish','bullish_candle']},
+];
+
+const FLAG_LABELS={
+  above_ma20:'站上MA20',above_ma60:'站上MA60',ma5_above_ma20:'MA5>MA20',
+  golden_cross:'黃金交叉',rsi_oversold:'RSI超賣',macd_bullish:'MACD多頭',
+  vol_surge:'爆量',near_bb_upper:'近BB上軌',near_bb_lower:'近BB下軌',
+  bullish_candle:'收紅K',new_high_50:'50日新高',new_low_50:'50日新低',
+  price_u100:'≤100元',price_u200:'≤200元',price_u500:'≤500元',
+};
+
+let activeStrategies=new Set();
+let allStocks=[];
+const codeOnly=s=>s.replace('.TWO','').replace('.TW','');
+
+// 渲染策略卡
+document.getElementById('strategyGrid').innerHTML=STRATEGIES.map(s=>`
+  <div class="strategy-card" id="sc-${s.id}" onclick="toggleStrategy('${s.id}')">
+    <div class="check" id="chk-${s.id}"></div>
+    <div class="strategy-icon">${s.icon}</div>
+    <div class="strategy-name">${s.name}</div>
+    <div class="strategy-desc">${s.desc}</div>
+    <div class="strategy-flags">
+      ${s.flags.map(f=>`<span class="flag-chip">${FLAG_LABELS[f]||f}</span>`).join('')}
+    </div>
+  </div>`).join('');
+
+function toggleStrategy(id){
+  if(activeStrategies.has(id)) activeStrategies.delete(id);
+  else activeStrategies.add(id);
+  document.getElementById('sc-'+id).classList.toggle('active',activeStrategies.has(id));
+  document.getElementById('chk-'+id).textContent=activeStrategies.has(id)?'✓':'';
+}
+
+async function runScreen(){
+  if(activeStrategies.size===0){ alert('請先選擇至少一個策略'); return; }
+  const btn=document.getElementById('runBtn');
+  btn.disabled=true; btn.textContent='篩選中…';
+
+  try{
+    if(!allStocks.length){
+      const res=await fetch('data/stocks.json?t='+Date.now());
+      const d=await res.json();
+      allStocks=d.stocks||[];
+    }
+
+    // 合併選中策略的必要條件
+    const requiredFlags=new Set();
+    const bonusFlags=new Set();
+    [...activeStrategies].forEach(id=>{
+      const s=STRATEGIES.find(x=>x.id===id);
+      if(!s) return;
+      s.flags.forEach(f=>requiredFlags.add(f));
+      s.bonus.forEach(f=>bonusFlags.add(f));
+    });
+
+    // 篩選：必要條件全中
+    let results=allStocks.filter(s=>[...requiredFlags].every(f=>s.flags&&s.flags[f]));
+
+    // 計算得分（bonus 加分）
+    results=results.map(s=>{
+      const score=[...bonusFlags].filter(f=>s.flags&&s.flags[f]).length;
+      return{...s,score};
+    }).sort((a,b)=>b.score-a.score||(b.chg||0)-(a.chg||0));
+
+    // 最多顯示15筆（目標10以內，但不強制）
+    const show=results.slice(0,15);
+
+    const sec=document.getElementById('resultSection');
+    const grid=document.getElementById('resultGrid');
+    sec.style.display='block';
+    document.getElementById('resultTitle').innerHTML=
+      `篩選結果：<span style="color:var(--accent);font-size:22px">${show.length}</span> 檔
+       <span style="font-size:13px;color:var(--text2);margin-left:8px">（從 ${results.length} 檔中選出前 ${show.length} 檔）</span>`;
+
+    if(!show.length){
+      grid.innerHTML='<div class="no-result">😢 沒有符合所有條件的股票<br>請嘗試減少策略數量</div>';
+    } else {
+      const maxScore=[...bonusFlags].size||1;
+      grid.innerHTML=show.map(s=>{
+        const pct=s.chg,cls=pct>0?'up':pct<0?'down':'flat',sign=pct>0?'+':'';
+        const flagsHtml=[...requiredFlags,...bonusFlags].filter(f=>s.flags&&s.flags[f])
+          .map(f=>`<span class="rc-flag flag-bull">${FLAG_LABELS[f]||f}</span>`).join('');
+        const scorePct=Math.round(s.score/maxScore*100);
+        return`<div class="result-card">
+          <div class="rc-top">
+            <div>
+              <div class="rc-symbol">${codeOnly(s.symbol)}</div>
+              <div class="rc-name">${s.name||''}${s.group?` · ${s.group}`:''}</div>
+            </div>
+            <div style="text-align:right">
+              <div class="rc-price ${cls}">${s.lc??'-'}</div>
+              <div style="font-size:11px;font-family:var(--mono)" class="${cls}">${sign}${pct!=null?pct.toFixed(2)+'%':'-'}</div>
+            </div>
+          </div>
+          <div class="rc-flags">${flagsHtml}</div>
+          <div class="rc-score">
+            <span>符合度</span>
+            <div class="score-bar"><div class="score-fill" style="width:${scorePct}%"></div></div>
+            <span>${scorePct}%</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }catch(e){ alert('載入失敗：'+e.message); }
+
+  btn.disabled=false; btn.textContent='🔍 開始篩選';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>統計 — TWSTOCK</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{--bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--border:#252a3a;--accent:#00c896;--accent2:#4f8ef7;--text:#e8eaf0;--text2:#8892aa;--text3:#55607a;--up:#e84040;--down:#28a745;--font:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font)}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
+.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px}
+.topbar-nav{display:flex;gap:2px}
+.topbar-nav a{color:var(--text2);text-decoration:none;font-size:13px;padding:4px 10px;border-radius:6px;transition:all .15s;white-space:nowrap}
+.topbar-nav a:hover{color:var(--text);background:var(--bg3)}
+.topbar-nav a.active{color:var(--accent);background:rgba(0,200,150,.1)}
+.container{padding:20px 16px;max-width:1200px;margin:0 auto}
+.section-title{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.section-title::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px}
+.summary-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:24px}
+.sbox{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.sbox-label{font-size:10px;color:var(--text3);margin-bottom:4px}
+.sbox-value{font-family:var(--mono);font-size:18px;font-weight:700}
+.loading{text-align:center;padding:40px;color:var(--text3)}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-logo">TWSTOCK</div>
+  <nav class="topbar-nav">
+    <a href="index.html">選股</a>
+    <a href="watchlist.html">批量搜尋</a>
+    <a href="favorites.html">我的最愛</a>
+    <a href="market.html">大盤/期貨</a>
+    <a href="stats.html" class="active">統計</a>
+    <a href="sectors.html">類股排行</a>
+    <a href="ai.html">AI選股</a>
+    <a href="fear.html">貪婪指數</a>
+  </nav>
+</div>
+
+<div class="container">
+  <div id="mainContent"><div class="loading">⏳ 計算統計資料中…</div></div>
+</div>
+
+<script>
+async function loadAndRender(){
+  const res=await fetch('data/stocks.json?t='+Date.now());
+  const d=await res.json();
+  const stocks=d.stocks||[];
+
+  // 用 A 批次取得 K 棒資料計算每日漲跌數
+  // 但因資料量大，這裡直接用 flags 和 chg 做當日統計
+  const up=stocks.filter(s=>s.chg>0).length;
+  const down=stocks.filter(s=>s.chg<0).length;
+  const flat=stocks.filter(s=>s.chg===0||s.chg==null).length;
+  const total=stocks.length;
+
+  // 各類股漲跌統計
+  const sectorStats={};
+  stocks.forEach(s=>{
+    const g=s.group||'其他';
+    if(!sectorStats[g]) sectorStats[g]={up:0,down:0,flat:0,total:0};
+    sectorStats[g].total++;
+    if(s.chg>0) sectorStats[g].up++;
+    else if(s.chg<0) sectorStats[g].down++;
+    else sectorStats[g].flat++;
+  });
+
+  // 股價分佈
+  const priceRanges={
+    '100以下':stocks.filter(s=>s.lc&&s.lc<100).length,
+    '100~200':stocks.filter(s=>s.lc&&s.lc>=100&&s.lc<200).length,
+    '200~500':stocks.filter(s=>s.lc&&s.lc>=200&&s.lc<500).length,
+    '500~1000':stocks.filter(s=>s.lc&&s.lc>=500&&s.lc<1000).length,
+    '1000以上':stocks.filter(s=>s.lc&&s.lc>=1000).length,
+  };
+
+  const avgChg=(stocks.reduce((a,s)=>a+(s.chg||0),0)/stocks.length).toFixed(2);
+
+  const html=`
+    <div class="section-title">今日市場概況</div>
+    <div class="summary-row">
+      <div class="sbox"><div class="sbox-label">總檔數</div><div class="sbox-value" style="color:var(--accent2)">${total}</div></div>
+      <div class="sbox"><div class="sbox-label">上漲</div><div class="sbox-value" style="color:var(--up)">${up}</div></div>
+      <div class="sbox"><div class="sbox-label">下跌</div><div class="sbox-value" style="color:var(--down)">${down}</div></div>
+      <div class="sbox"><div class="sbox-label">平盤</div><div class="sbox-value" style="color:var(--text2)">${flat}</div></div>
+      <div class="sbox"><div class="sbox-label">漲跌比</div><div class="sbox-value" style="color:${up>down?'var(--up)':'var(--down)'}">${(up/Math.max(down,1)).toFixed(2)}</div></div>
+      <div class="sbox"><div class="sbox-label">平均漲跌%</div><div class="sbox-value" style="color:${avgChg>0?'var(--up)':'var(--down)'}">${avgChg>0?'+':''}${avgChg}%</div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="section-title">今日漲跌分佈</div>
+        <canvas id="updownChart" height="200"></canvas>
+      </div>
+      <div class="card">
+        <div class="section-title">股價分佈</div>
+        <canvas id="priceChart" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">各類股漲跌統計（今日）</div>
+      <canvas id="sectorChart" height="120"></canvas>
+    </div>`;
+
+  document.getElementById('mainContent').innerHTML=html;
+
+  // 圖1：漲跌圓餅
+  new Chart(document.getElementById('updownChart'),{
+    type:'doughnut',
+    data:{labels:['上漲','下跌','平盤'],datasets:[{data:[up,down,flat],backgroundColor:['#e84040','#28a745','#4f8ef7'],borderWidth:0}]},
+    options:{plugins:{legend:{labels:{color:'#8892aa'}}},cutout:'60%'}
+  });
+
+  // 圖2：股價分佈
+  new Chart(document.getElementById('priceChart'),{
+    type:'bar',
+    data:{
+      labels:Object.keys(priceRanges),
+      datasets:[{label:'檔數',data:Object.values(priceRanges),backgroundColor:'rgba(79,142,247,.7)',borderRadius:4}]
+    },
+    options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8892aa'}},y:{ticks:{color:'#8892aa'},grid:{color:'#1c2030'}}}}
+  });
+
+  // 圖3：各類股漲跌
+  const sKeys=Object.keys(sectorStats).sort((a,b)=>sectorStats[b].up-sectorStats[a].up);
+  new Chart(document.getElementById('sectorChart'),{
+    type:'bar',
+    data:{
+      labels:sKeys,
+      datasets:[
+        {label:'上漲',data:sKeys.map(k=>sectorStats[k].up),backgroundColor:'rgba(232,64,64,.75)',borderRadius:3},
+        {label:'下跌',data:sKeys.map(k=>sectorStats[k].down),backgroundColor:'rgba(40,167,69,.75)',borderRadius:3},
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{labels:{color:'#8892aa'}}},
+      scales:{
+        x:{stacked:false,ticks:{color:'#8892aa',font:{size:10}},grid:{color:'#1c2030'}},
+        y:{ticks:{color:'#8892aa'},grid:{color:'#1c2030'}}
+      }
+    }
+  });
+}
+
+loadAndRender().catch(e=>{
+  document.getElementById('mainContent').innerHTML='<div class="loading">⚠ 無法載入資料</div>';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>類股排行 — TWSTOCK</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{--bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--border:#252a3a;--accent:#00c896;--accent2:#4f8ef7;--text:#e8eaf0;--text2:#8892aa;--text3:#55607a;--up:#e84040;--down:#28a745;--font:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font)}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
+.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px}
+.topbar-nav{display:flex;gap:2px}
+.topbar-nav a{color:var(--text2);text-decoration:none;font-size:13px;padding:4px 10px;border-radius:6px;transition:all .15s;white-space:nowrap}
+.topbar-nav a:hover{color:var(--text);background:var(--bg3)}
+.topbar-nav a.active{color:var(--accent);background:rgba(0,200,150,.1)}
+.container{padding:20px 16px;max-width:1200px;margin:0 auto}
+.section-title{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.section-title::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;display:block}
+
+.sector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:24px}
+.sector-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.sector-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sector-name{font-size:14px;font-weight:600}
+.sector-chg{font-family:var(--mono);font-size:14px;font-weight:700}
+.sector-bar-wrap{height:6px;background:var(--bg3);border-radius:3px;margin-bottom:8px;overflow:hidden;display:flex}
+.bar-up{background:var(--up);border-radius:3px 0 0 3px;transition:width .5s}
+.bar-down{background:var(--down);border-radius:0 3px 3px 0;transition:width .5s}
+.sector-sub{display:flex;gap:12px;font-size:11px;color:var(--text2)}
+.top-stocks{margin-top:8px;border-top:1px solid var(--border);padding-top:8px}
+.top-stock-row{display:flex;justify-content:space-between;font-size:11px;padding:2px 0}
+.up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--text2)}
+
+.overall-bar{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.overall-item{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:80px}
+.overall-label{font-size:10px;color:var(--text3)}
+.overall-value{font-family:var(--mono);font-size:16px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-logo">TWSTOCK</div>
+  <nav class="topbar-nav">
+    <a href="index.html">選股</a>
+    <a href="watchlist.html">批量搜尋</a>
+    <a href="favorites.html">我的最愛</a>
+    <a href="market.html">大盤/期貨</a>
+    <a href="stats.html">統計</a>
+    <a href="sectors.html" class="active">類股排行</a>
+    <a href="ai.html">AI選股</a>
+    <a href="fear.html">貪婪指數</a>
+  </nav>
+</div>
+
+<div class="container">
+  <div class="section-title">各類股今日漲跌排行</div>
+  <div id="overallBar"></div>
+  <div class="sector-grid" id="sectorGrid"><p style="color:var(--text3);padding:40px">載入中…</p></div>
+</div>
+
+<script>
+async function loadAndRender(){
+  const res=await fetch('data/stocks.json?t='+Date.now());
+  const d=await res.json();
+  const stocks=d.stocks||[];
+
+  // 按 group 分類
+  const map={};
+  stocks.forEach(s=>{
+    const g=s.group||'其他';
+    if(!map[g]) map[g]={stocks:[],upSum:0,count:0};
+    map[g].stocks.push(s);
+    if(s.chg!=null) map[g].upSum+=s.chg; map[g].count++;
+  });
+
+  // 計算各類股平均漲跌
+  const sectors=Object.entries(map).map(([name,data])=>{
+    const up=data.stocks.filter(s=>s.chg>0).length;
+    const down=data.stocks.filter(s=>s.chg<0).length;
+    const avgChg=data.count>0?(data.upSum/data.count):0;
+    const topUp=[...data.stocks].filter(s=>s.chg>0).sort((a,b)=>b.chg-a.chg).slice(0,3);
+    const topDown=[...data.stocks].filter(s=>s.chg<0).sort((a,b)=>a.chg-b.chg).slice(0,3);
+    return{name,up,down,flat:data.stocks.length-up-down,total:data.stocks.length,avgChg,topUp,topDown};
+  }).sort((a,b)=>b.avgChg-a.avgChg);
+
+  const codeOnly=s=>s.replace('.TWO','').replace('.TW','');
+
+  // 整體
+  const totalUp=stocks.filter(s=>s.chg>0).length;
+  const totalDown=stocks.filter(s=>s.chg<0).length;
+  document.getElementById('overallBar').innerHTML=`
+    <div class="overall-bar">
+      <div class="overall-item"><div class="overall-label">上漲</div><div class="overall-value up">${totalUp}</div></div>
+      <div class="overall-item"><div class="overall-label">下跌</div><div class="overall-value down">${totalDown}</div></div>
+      <div class="overall-item"><div class="overall-label">類股數</div><div class="overall-value" style="color:var(--accent2)">${sectors.length}</div></div>
+      <div class="overall-item"><div class="overall-label">更新時間</div><div class="overall-value" style="font-size:12px;color:var(--text2)">${d.updated_at||'-'}</div></div>
+    </div>`;
+
+  document.getElementById('sectorGrid').innerHTML=sectors.map(s=>{
+    const cls=s.avgChg>0?'up':s.avgChg<0?'down':'flat';
+    const sign=s.avgChg>0?'+':'';
+    const upPct=s.total>0?s.up/s.total*100:0;
+    const downPct=s.total>0?s.down/s.total*100:0;
+    const topHtml=[...s.topUp.map(t=>`<div class="top-stock-row"><span style="color:var(--accent2)">${codeOnly(t.symbol)} ${t.name||''}</span><span class="up">+${t.chg?.toFixed(2)||0}%</span></div>`),
+      ...s.topDown.map(t=>`<div class="top-stock-row"><span style="color:var(--accent2)">${codeOnly(t.symbol)} ${t.name||''}</span><span class="down">${t.chg?.toFixed(2)||0}%</span></div>`)].join('');
+    return `<div class="sector-card">
+      <div class="sector-card-header">
+        <div class="sector-name">${s.name}</div>
+        <div class="sector-chg ${cls}">${sign}${s.avgChg.toFixed(2)}%</div>
+      </div>
+      <div class="sector-bar-wrap">
+        <div class="bar-up" style="width:${upPct}%"></div>
+        <div class="bar-down" style="width:${downPct}%"></div>
+      </div>
+      <div class="sector-sub">
+        <span class="up">▲ ${s.up}</span>
+        <span class="down">▼ ${s.down}</span>
+        <span class="flat">— ${s.flat}</span>
+        <span>共 ${s.total} 檔</span>
+      </div>
+      <div class="top-stocks">${topHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+loadAndRender().catch(()=>{document.getElementById('sectorGrid').innerHTML='<p style="color:var(--text3);padding:40px">⚠ 無法載入資料</p>';});
+</script>
+</body>
+</html>
