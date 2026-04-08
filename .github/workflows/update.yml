@@ -2,8 +2,7 @@ name: 每日台股全量資料更新
 
 on:
   schedule:
-    # 台灣時間 18:30（UTC 10:30），週一到週五
-    - cron: '30 10 * * 1-5'
+    - cron: '30 10 * * 1-5'   # 台灣時間 18:30，週一到週五
   workflow_dispatch:
 
 permissions:
@@ -55,34 +54,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 下載三批 artifact，各自放進 data/ 資料夾
       - uses: actions/download-artifact@v4
-        with:
-          name: batch-A
-          path: data
-
+        with: { name: batch-A, path: data }
       - uses: actions/download-artifact@v4
-        with:
-          name: batch-B
-          path: data
-
+        with: { name: batch-B, path: data }
       - uses: actions/download-artifact@v4
-        with:
-          name: batch-C
-          path: data
+        with: { name: batch-C, path: data }
 
-      # 列出確認檔案存在
-      - name: 確認 artifact 檔案
+      - name: 確認檔案與大小
         run: ls -lh data/
 
-      # 合併（純標準庫，不需要安裝任何套件）
-      - name: 合併三批資料
+      - name: 合併產生 stocks.json（index）
         run: python scripts/merge_data.py
 
       - name: Commit & push
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/stocks.json
+          # 加入 index + 三批 K棒檔
+          git add data/stocks.json data/stocks_A.json data/stocks_B.json data/stocks_C.json
           git diff --staged --quiet || git commit -m "chore: update all stocks $(date +'%Y-%m-%d %H:%M') UTC"
           git push
