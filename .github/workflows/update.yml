@@ -2,14 +2,10 @@ name: 每日台股資料更新
 
 on:
   schedule:
-    # K線資料：台灣時間 18:30（UTC 10:30），週一到週五
-    - cron: '30 10 * * 1-5'
-    # 外資買賣超：台灣時間 20:00（UTC 12:00），週一到週五
-    - cron: '0 12 * * 1-5'
-    # 月營收：每月 10 日 09:00 台灣時間（UTC 01:00）
-    - cron: '0 1 10 * *'
-    # 股息：每週日 02:00 台灣時間（UTC 18:00 週六）
-    - cron: '0 18 * * 6'
+    - cron: '30 10 * * 1-5'   # K線：台灣時間 18:30
+    - cron: '0 12 * * 1-5'    # 外資：台灣時間 20:00
+    - cron: '0 1 10 * *'      # 月營收：每月 10 日 09:00
+    - cron: '0 18 * * 6'      # 股息：每週日 02:00
   workflow_dispatch:
     inputs:
       job:
@@ -22,10 +18,13 @@ on:
 permissions:
   contents: write
 
-# ══════════════════════════════════════════════
-#  K 線資料（三批平行）
-# ══════════════════════════════════════════════
+# ─── 共用 push 函式（shell script）───────────────────────────
+# 用法：在每個 Commit & push step 中加入重試機制
+
 jobs:
+# ══════════════════════════════════════════════
+#  K 線資料（三批平行抓取）
+# ══════════════════════════════════════════════
   fetch-A:
     if: github.event_name != 'workflow_dispatch' || inputs.job == 'all' || inputs.job == 'kline'
     runs-on: ubuntu-latest
@@ -68,80 +67,111 @@ jobs:
     needs: [fetch-A, fetch-B, fetch-C]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # 需要完整 history 才能 rebase
+
       - uses: actions/download-artifact@v4
         with: { name: batch-A, path: data }
       - uses: actions/download-artifact@v4
         with: { name: batch-B, path: data }
       - uses: actions/download-artifact@v4
         with: { name: batch-C, path: data }
-      - name: 確認檔案
+
+      - name: 確認檔案大小
         run: ls -lh data/
-      - name: 合併
+
+      - name: 合併產生 index
         run: python scripts/merge_data.py
-      - name: Commit & push
+
+      - name: Commit & push（自動重試）
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/stocks.json data/stocks_A.json data/stocks_B.json data/stocks_C.json
-          git diff --staged --quiet || git commit -m "chore: update kline $(date +'%Y-%m-%d %H:%M') UTC"
-          git push
+          git diff --staged --quiet && echo "無變更，跳過 commit" && exit 0
+          git commit -m "chore: update kline $(date +'%Y-%m-%d %H:%M') UTC"
+          # 最多重試 5 次，避免與其他 job 的 push 衝突
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && echo "Push 成功（第 $i 次）" && exit 0
+            echo "Push 失敗，等待 $((i * 3)) 秒後重試..."
+            sleep $((i * 3))
+          done
+          echo "Push 失敗超過 5 次" && exit 1
 
 # ══════════════════════════════════════════════
-#  外資買賣超（每日）
+#  外資買賣超
 # ══════════════════════════════════════════════
   fetch-foreign:
     if: github.event_name != 'workflow_dispatch' || inputs.job == 'all' || inputs.job == 'foreign'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
       - run: pip install requests
       - run: python scripts/fetch_foreign.py
-      - name: Commit & push foreign
+      - name: Commit & push（自動重試）
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/foreign.json
-          git diff --staged --quiet || git commit -m "chore: update foreign $(date +'%Y-%m-%d')"
-          git push
+          git diff --staged --quiet && echo "無變更" && exit 0
+          git commit -m "chore: update foreign $(date +'%Y-%m-%d')"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && echo "Push 成功" && exit 0
+            echo "重試中 ($i)..."; sleep $((i * 3))
+          done
+          exit 1
 
 # ══════════════════════════════════════════════
-#  月營收（每月 10 日）
+#  月營收
 # ══════════════════════════════════════════════
   fetch-revenue:
     if: github.event_name != 'workflow_dispatch' || inputs.job == 'all' || inputs.job == 'revenue'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
       - run: pip install requests
       - run: python scripts/fetch_revenue.py
-      - name: Commit & push revenue
+      - name: Commit & push（自動重試）
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/revenue.json
-          git diff --staged --quiet || git commit -m "chore: update revenue $(date +'%Y-%m')"
-          git push
+          git diff --staged --quiet && echo "無變更" && exit 0
+          git commit -m "chore: update revenue $(date +'%Y-%m')"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && echo "Push 成功" && exit 0
+            echo "重試中 ($i)..."; sleep $((i * 3))
+          done
+          exit 1
 
 # ══════════════════════════════════════════════
-#  股息資料（每週日）
+#  股息資料
 # ══════════════════════════════════════════════
   fetch-dividend:
     if: github.event_name != 'workflow_dispatch' || inputs.job == 'all' || inputs.job == 'dividend'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
       - run: pip install yfinance twstock
       - run: python scripts/fetch_dividend.py
-      - name: Commit & push dividend
+      - name: Commit & push（自動重試）
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/dividend.json
-          git diff --staged --quiet || git commit -m "chore: update dividend $(date +'%Y-%m-%d')"
-          git push
+          git diff --staged --quiet && echo "無變更" && exit 0
+          git commit -m "chore: update dividend $(date +'%Y-%m-%d')"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && echo "Push 成功" && exit 0
+            echo "重試中 ($i)..."; sleep $((i * 3))
+          done
+          exit 1
