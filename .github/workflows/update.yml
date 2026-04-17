@@ -1,15 +1,33 @@
-name: 每日台股全量資料更新
+name: 每日台股資料更新
 
 on:
   schedule:
-    - cron: '30 10 * * 1-5'   # 台灣時間 18:30，週一到週五
+    # K線資料：台灣時間 18:30（UTC 10:30），週一到週五
+    - cron: '30 10 * * 1-5'
+    # 外資買賣超：台灣時間 20:00（UTC 12:00），週一到週五
+    - cron: '0 12 * * 1-5'
+    # 月營收：每月 10 日 09:00 台灣時間（UTC 01:00）
+    - cron: '0 1 10 * *'
+    # 股息：每週日 02:00 台灣時間（UTC 18:00 週六）
+    - cron: '0 18 * * 6'
   workflow_dispatch:
+    inputs:
+      job:
+        description: '選擇要執行的 job'
+        required: false
+        default: 'all'
+        type: choice
+        options: ['all', 'kline', 'foreign', 'revenue', 'dividend']
 
 permissions:
   contents: write
 
+# ══════════════════════════════════════════════
+#  K 線資料（三批平行）
+# ══════════════════════════════════════════════
 jobs:
   fetch-A:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == 'all' || inputs.job == 'kline'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,11 +36,10 @@ jobs:
       - run: pip install yfinance pandas twstock
       - run: python scripts/fetch_data.py --batch A
       - uses: actions/upload-artifact@v4
-        with:
-          name: batch-A
-          path: data/stocks_A.json
+        with: { name: batch-A, path: data/stocks_A.json }
 
   fetch-B:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == 'all' || inputs.job == 'kline'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,11 +48,10 @@ jobs:
       - run: pip install yfinance pandas twstock
       - run: python scripts/fetch_data.py --batch B
       - uses: actions/upload-artifact@v4
-        with:
-          name: batch-B
-          path: data/stocks_B.json
+        with: { name: batch-B, path: data/stocks_B.json }
 
   fetch-C:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == 'all' || inputs.job == 'kline'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -44,34 +60,88 @@ jobs:
       - run: pip install yfinance pandas twstock
       - run: python scripts/fetch_data.py --batch C
       - uses: actions/upload-artifact@v4
-        with:
-          name: batch-C
-          path: data/stocks_C.json
+        with: { name: batch-C, path: data/stocks_C.json }
 
   merge-and-commit:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == 'all' || inputs.job == 'kline'
     runs-on: ubuntu-latest
     needs: [fetch-A, fetch-B, fetch-C]
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/download-artifact@v4
         with: { name: batch-A, path: data }
       - uses: actions/download-artifact@v4
         with: { name: batch-B, path: data }
       - uses: actions/download-artifact@v4
         with: { name: batch-C, path: data }
-
-      - name: 確認檔案與大小
+      - name: 確認檔案
         run: ls -lh data/
-
-      - name: 合併產生 stocks.json（index）
+      - name: 合併
         run: python scripts/merge_data.py
-
       - name: Commit & push
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # 加入 index + 三批 K棒檔
           git add data/stocks.json data/stocks_A.json data/stocks_B.json data/stocks_C.json
-          git diff --staged --quiet || git commit -m "chore: update all stocks $(date +'%Y-%m-%d %H:%M') UTC"
+          git diff --staged --quiet || git commit -m "chore: update kline $(date +'%Y-%m-%d %H:%M') UTC"
+          git push
+
+# ══════════════════════════════════════════════
+#  外資買賣超（每日）
+# ══════════════════════════════════════════════
+  fetch-foreign:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == 'all' || inputs.job == 'foreign'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install requests
+      - run: python scripts/fetch_foreign.py
+      - name: Commit & push foreign
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/foreign.json
+          git diff --staged --quiet || git commit -m "chore: update foreign $(date +'%Y-%m-%d')"
+          git push
+
+# ══════════════════════════════════════════════
+#  月營收（每月 10 日）
+# ══════════════════════════════════════════════
+  fetch-revenue:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == 'all' || inputs.job == 'revenue'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install requests
+      - run: python scripts/fetch_revenue.py
+      - name: Commit & push revenue
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/revenue.json
+          git diff --staged --quiet || git commit -m "chore: update revenue $(date +'%Y-%m')"
+          git push
+
+# ══════════════════════════════════════════════
+#  股息資料（每週日）
+# ══════════════════════════════════════════════
+  fetch-dividend:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == 'all' || inputs.job == 'dividend'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install yfinance twstock
+      - run: python scripts/fetch_dividend.py
+      - name: Commit & push dividend
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/dividend.json
+          git diff --staged --quiet || git commit -m "chore: update dividend $(date +'%Y-%m-%d')"
           git push
