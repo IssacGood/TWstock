@@ -68,6 +68,19 @@ def fetch_stock(symbol, zh_name="", group=""):
                 info=tk.info; name=info.get("shortName") or info.get("longName") or symbol
             except: name=symbol
 
+        # 取流通股數（計算周轉率用，可能取不到）
+        shares=None
+        try:
+            fi=tk.fast_info; shares=getattr(fi,'shares',None)
+            if not shares:
+                inf=tk.info; shares=inf.get('sharesOutstanding') or inf.get('floatShares')
+        except: pass
+
+        # 計算今日周轉率 = 今日成交量 / 流通股數 * 100
+        turnover_rate=None
+        if shares and shares>0 and not pd.isna(last.Volume):
+            turnover_rate=safe(last.Volume/shares*100)
+
         # K棒只存 [日期,開,高,低,收,量] 節省空間
         candles=[]
         for ts,row in df.iterrows():
@@ -98,18 +111,20 @@ def fetch_stock(symbol, zh_name="", group=""):
             "price_u200":     b(last.Close<200),
             "price_u500":     b(last.Close<500),
             "price_u1000":    b(last.Close<1000),
+            "high_turnover":  b(turnover_rate is not None and turnover_rate>3),   # 周轉率>3%
         }
 
         ind={
             "ma5":safe(last._ma5), "ma20":safe(last._ma20),
             "ma60":safe(last._ma60),"rsi":safe(last._rsi),
             "macd":safe(last._macd),"bbu":safe(last._bbu),"bbl":safe(last._bbl),
+            "turnover": turnover_rate,  # 周轉率%
         }
 
         return {
             "symbol":  symbol,
             "name":    name,
-            "group":   group,   # ← 產業分類
+            "group":   group,
             "lc":      safe(last.Close),
             "chg":     safe((last.Close-prev.Close)/prev.Close*100),
             "ind":     ind,

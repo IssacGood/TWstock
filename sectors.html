@@ -6,36 +6,67 @@
 <title>類股排行 — TWSTOCK</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
-:root{--bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--border:#252a3a;--accent:#00c896;--accent2:#4f8ef7;--text:#e8eaf0;--text2:#8892aa;--text3:#55607a;--up:#e84040;--down:#28a745;--font:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace}
+:root{--bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--border:#252a3a;--accent:#00c896;--accent2:#4f8ef7;--gold:#f0b840;--text:#e8eaf0;--text2:#8892aa;--text3:#55607a;--up:#e84040;--down:#28a745;--font:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:var(--font)}
-.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
-.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px}
-.topbar-nav{display:flex;gap:2px}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;position:sticky;top:0;z-index:100;gap:8px}
+.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px;justify-self:start}
+.topbar-nav{display:flex;gap:2px;justify-self:center}
 .topbar-nav a{color:var(--text2);text-decoration:none;font-size:13px;padding:4px 10px;border-radius:6px;transition:all .15s;white-space:nowrap}
 .topbar-nav a:hover{color:var(--text);background:var(--bg3)}
 .topbar-nav a.active{color:var(--accent);background:rgba(0,200,150,.1)}
-.container{padding:20px 16px;max-width:1200px;margin:0 auto}
-.section-title{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:6px}
-.section-title::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px;display:block}
+.container{padding:20px 16px;max-width:1300px;margin:0 auto}
 
-.sector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:24px}
-.sector-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
-.sector-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.sector-name{font-size:14px;font-weight:600}
-.sector-chg{font-family:var(--mono);font-size:14px;font-weight:700}
-.sector-bar-wrap{height:6px;background:var(--bg3);border-radius:3px;margin-bottom:8px;overflow:hidden;display:flex}
-.bar-up{background:var(--up);border-radius:3px 0 0 3px;transition:width .5s}
-.bar-down{background:var(--down);border-radius:0 3px 3px 0;transition:width .5s}
-.sector-sub{display:flex;gap:12px;font-size:11px;color:var(--text2)}
-.top-stocks{margin-top:8px;border-top:1px solid var(--border);padding-top:8px}
-.top-stock-row{display:flex;justify-content:space-between;font-size:11px;padding:2px 0}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.section-title{font-size:14px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:6px}
+.section-title::before{content:'';width:3px;height:13px;background:var(--accent);border-radius:2px;display:block}
+.updated{font-size:11px;color:var(--text3);font-family:var(--mono)}
+
+/* 整體概況列 */
+.overview-bar{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;gap:20px;flex-wrap:wrap;align-items:center}
+.ov-item{display:flex;flex-direction:column;gap:3px;min-width:80px}
+.ov-label{font-size:10px;color:var(--text3)}
+.ov-value{font-family:var(--mono);font-size:16px;font-weight:700}
+
+/* 排序切換 */
+.sort-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.stab{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:12px;padding:5px 12px;cursor:pointer;transition:all .15s}
+.stab.active{border-color:var(--accent2);color:var(--accent2)}
+
+/* 類股卡片 grid */
+.sector-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.sector-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s}
+.sector-card:hover{border-color:var(--border)}
+
+.sc-header{padding:12px 14px 8px;display:flex;justify-content:space-between;align-items:center}
+.sc-name{font-size:14px;font-weight:600}
+.sc-chg{font-family:var(--mono);font-size:14px;font-weight:700}
+
+/* 漲跌進度條 */
+.sc-bar{height:5px;background:var(--bg3);display:flex;margin:0 14px 8px}
+.sc-bar-up{background:var(--up);transition:width .5s}
+.sc-bar-down{background:var(--down);transition:width .5s}
+
+.sc-counts{padding:0 14px 8px;display:flex;gap:12px;font-size:11px}
 .up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--text2)}
 
-.overall-bar{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
-.overall-item{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:80px}
-.overall-label{font-size:10px;color:var(--text3)}
-.overall-value{font-family:var(--mono);font-size:16px;font-weight:700}
+/* 外資買賣超 */
+.sc-foreign{padding:6px 14px 8px;border-top:1px solid var(--border);font-size:11px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sc-foreign-label{color:var(--text3)}
+.sc-foreign-net{font-family:var(--mono);font-weight:600;font-size:12px}
+
+/* 個股排行 */
+.sc-stocks{border-top:1px solid var(--border)}
+.sc-stock-row{display:flex;justify-content:space-between;padding:5px 14px;font-size:11px;border-bottom:1px solid rgba(37,42,58,.4)}
+.sc-stock-row:last-child{border-bottom:none}
+.sc-stock-left{display:flex;gap:6px;align-items:center}
+.sc-code{font-family:var(--mono);color:var(--accent2);font-weight:600}
+.sc-sname{color:var(--text2)}
+.sc-foreign-badge{font-size:9px;padding:1px 5px;border-radius:3px}
+.badge-buy{background:rgba(232,64,64,.15);color:var(--up)}
+.badge-sell{background:rgba(40,167,69,.15);color:var(--down)}
+
+.loading-msg{text-align:center;padding:60px;color:var(--text3)}
 </style>
 </head>
 <body>
@@ -51,80 +82,167 @@ body{background:var(--bg);color:var(--text);font-family:var(--font)}
     <a href="ai.html">AI選股</a>
     <a href="fear.html">貪婪指數</a>
   </nav>
+  <div></div>
 </div>
 
 <div class="container">
-  <div class="section-title">各類股今日漲跌排行</div>
-  <div id="overallBar"></div>
-  <div class="sector-grid" id="sectorGrid"><p style="color:var(--text3);padding:40px">載入中…</p></div>
+  <div class="page-header">
+    <div class="section-title">各類股今日漲跌排行</div>
+    <div class="updated" id="updatedAt"></div>
+  </div>
+  <div class="overview-bar" id="overviewBar"></div>
+  <div class="sort-tabs">
+    <button class="stab active" data-sort="chg_d" onclick="setSort('chg_d',this)">平均漲幅↓</button>
+    <button class="stab" data-sort="chg_a" onclick="setSort('chg_a',this)">平均漲幅↑</button>
+    <button class="stab" data-sort="up_d" onclick="setSort('up_d',this)">上漲家數↓</button>
+    <button class="stab" data-sort="foreign_d" onclick="setSort('foreign_d',this)">外資淨買↓</button>
+    <button class="stab" data-sort="name" onclick="setSort('name',this)">名稱</button>
+  </div>
+  <div class="sector-grid" id="sectorGrid"><div class="loading-msg">⏳ 載入中…</div></div>
 </div>
 
 <script>
-async function loadAndRender(){
-  const res=await fetch('data/stocks.json?t='+Date.now());
-  const d=await res.json();
-  const stocks=d.stocks||[];
+const codeOnly=s=>s.replace('.TWO','').replace('.TW','');
+let sectors=[], sortMode='chg_d', foreignBySymbol={};
 
-  // 按 group 分類
+async function loadAndRender(){
+  const [idxRes, forRes] = await Promise.allSettled([
+    fetch('data/stocks.json?t='+Date.now()),
+    fetch('data/foreign.json?t='+Date.now()),
+  ]);
+
+  const idx  = idxRes.status==='fulfilled' ? await idxRes.value.json()  : {stocks:[]};
+  const forD = forRes.status==='fulfilled' ? await forRes.value.json()  : {by_symbol:{}};
+  const stocks = idx.stocks||[];
+  foreignBySymbol = forD.by_symbol||{};
+
+  document.getElementById('updatedAt').textContent = `更新：${idx.updated_at||'-'}`;
+
+  // 整體概況
+  const totalUp  = stocks.filter(s=>s.chg>0).length;
+  const totalDown= stocks.filter(s=>s.chg<0).length;
+  const avgChg   = stocks.length ? (stocks.reduce((a,s)=>a+(s.chg||0),0)/stocks.length) : 0;
+  document.getElementById('overviewBar').innerHTML=`
+    <div class="ov-item"><div class="ov-label">全市場</div><div class="ov-value" style="color:var(--accent2)">${stocks.length} 檔</div></div>
+    <div class="ov-item"><div class="ov-label">上漲</div><div class="ov-value up">${totalUp}</div></div>
+    <div class="ov-item"><div class="ov-label">下跌</div><div class="ov-value down">${totalDown}</div></div>
+    <div class="ov-item"><div class="ov-label">漲跌比</div><div class="ov-value" style="color:${totalUp>totalDown?'var(--up)':'var(--down)'}">${(totalUp/Math.max(totalDown,1)).toFixed(2)}</div></div>
+    <div class="ov-item"><div class="ov-label">平均漲跌</div><div class="ov-value" style="color:${avgChg>0?'var(--up)':'var(--down)'}">${avgChg>0?'+':''}${avgChg.toFixed(2)}%</div></div>`;
+
+  // 按類股分組
   const map={};
   stocks.forEach(s=>{
     const g=s.group||'其他';
-    if(!map[g]) map[g]={stocks:[],upSum:0,count:0};
+    if(!map[g]) map[g]={name:g,stocks:[],upSum:0};
     map[g].stocks.push(s);
-    if(s.chg!=null) map[g].upSum+=s.chg; map[g].count++;
+    map[g].upSum+=s.chg||0;
   });
 
-  // 計算各類股平均漲跌
-  const sectors=Object.entries(map).map(([name,data])=>{
-    const up=data.stocks.filter(s=>s.chg>0).length;
-    const down=data.stocks.filter(s=>s.chg<0).length;
-    const avgChg=data.count>0?(data.upSum/data.count):0;
-    const topUp=[...data.stocks].filter(s=>s.chg>0).sort((a,b)=>b.chg-a.chg).slice(0,3);
-    const topDown=[...data.stocks].filter(s=>s.chg<0).sort((a,b)=>a.chg-b.chg).slice(0,3);
-    return{name,up,down,flat:data.stocks.length-up-down,total:data.stocks.length,avgChg,topUp,topDown};
-  }).sort((a,b)=>b.avgChg-a.avgChg);
+  sectors=Object.values(map).map(g=>{
+    const up  =g.stocks.filter(s=>s.chg>0).length;
+    const down=g.stocks.filter(s=>s.chg<0).length;
+    const avg =g.stocks.length ? g.upSum/g.stocks.length : 0;
 
-  const codeOnly=s=>s.replace('.TWO','').replace('.TW','');
+    // 外資淨買超（加總該類股所有股票最新一天）
+    let foreignNet=0;
+    g.stocks.forEach(s=>{
+      const arr=foreignBySymbol[s.symbol];
+      if(arr?.length){
+        const last=arr[arr.length-1];
+        foreignNet+=last.net||0;
+      }
+    });
 
-  // 整體
-  const totalUp=stocks.filter(s=>s.chg>0).length;
-  const totalDown=stocks.filter(s=>s.chg<0).length;
-  document.getElementById('overallBar').innerHTML=`
-    <div class="overall-bar">
-      <div class="overall-item"><div class="overall-label">上漲</div><div class="overall-value up">${totalUp}</div></div>
-      <div class="overall-item"><div class="overall-label">下跌</div><div class="overall-value down">${totalDown}</div></div>
-      <div class="overall-item"><div class="overall-label">類股數</div><div class="overall-value" style="color:var(--accent2)">${sectors.length}</div></div>
-      <div class="overall-item"><div class="overall-label">更新時間</div><div class="overall-value" style="font-size:12px;color:var(--text2)">${d.updated_at||'-'}</div></div>
-    </div>`;
+    // 前三名漲跌個股
+    const topUp  =[...g.stocks].filter(s=>s.chg>0).sort((a,b)=>b.chg-a.chg).slice(0,3);
+    const topDown=[...g.stocks].filter(s=>s.chg<0).sort((a,b)=>a.chg-b.chg).slice(0,3);
+    return{name:g.name, up, down, flat:g.stocks.length-up-down, total:g.stocks.length, avg, foreignNet, topUp, topDown};
+  });
 
-  document.getElementById('sectorGrid').innerHTML=sectors.map(s=>{
-    const cls=s.avgChg>0?'up':s.avgChg<0?'down':'flat';
-    const sign=s.avgChg>0?'+':'';
-    const upPct=s.total>0?s.up/s.total*100:0;
-    const downPct=s.total>0?s.down/s.total*100:0;
-    const topHtml=[...s.topUp.map(t=>`<div class="top-stock-row"><span style="color:var(--accent2)">${codeOnly(t.symbol)} ${t.name||''}</span><span class="up">+${t.chg?.toFixed(2)||0}%</span></div>`),
-      ...s.topDown.map(t=>`<div class="top-stock-row"><span style="color:var(--accent2)">${codeOnly(t.symbol)} ${t.name||''}</span><span class="down">${t.chg?.toFixed(2)||0}%</span></div>`)].join('');
-    return `<div class="sector-card">
-      <div class="sector-card-header">
-        <div class="sector-name">${s.name}</div>
-        <div class="sector-chg ${cls}">${sign}${s.avgChg.toFixed(2)}%</div>
+  renderGrid();
+}
+
+function setSort(mode, btn){
+  sortMode=mode;
+  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid();
+}
+
+function renderGrid(){
+  const sorted=[...sectors].sort((a,b)=>{
+    if(sortMode==='chg_d')    return b.avg-a.avg;
+    if(sortMode==='chg_a')    return a.avg-b.avg;
+    if(sortMode==='up_d')     return b.up-a.up;
+    if(sortMode==='foreign_d')return b.foreignNet-a.foreignNet;
+    return a.name.localeCompare(b.name,'zh');
+  });
+
+  document.getElementById('sectorGrid').innerHTML=sorted.map(s=>{
+    const cls=s.avg>0?'up':s.avg<0?'down':'flat';
+    const sign=s.avg>0?'+':'';
+    const upPct=s.total?(s.up/s.total*100):0;
+    const dnPct=s.total?(s.down/s.total*100):0;
+    const fCls=s.foreignNet>0?'up':s.foreignNet<0?'down':'flat';
+    const fSign=s.foreignNet>0?'+':'';
+
+    const topRows=[
+      ...s.topUp.map(t=>{
+        const farr=foreignBySymbol[t.symbol];
+        const fnet=farr?.length?farr[farr.length-1].net:null;
+        return`<div class="sc-stock-row">
+          <div class="sc-stock-left">
+            <span class="sc-code">${codeOnly(t.symbol)}</span>
+            <span class="sc-sname">${t.name||''}</span>
+            ${fnet!=null&&fnet>0?`<span class="sc-foreign-badge badge-buy">外資+${fnet.toLocaleString()}</span>`:''}
+            ${fnet!=null&&fnet<0?`<span class="sc-foreign-badge badge-sell">外資${fnet.toLocaleString()}</span>`:''}
+          </div>
+          <span class="up">+${t.chg?.toFixed(2)||0}%</span>
+        </div>`;
+      }),
+      ...s.topDown.map(t=>{
+        const farr=foreignBySymbol[t.symbol];
+        const fnet=farr?.length?farr[farr.length-1].net:null;
+        return`<div class="sc-stock-row">
+          <div class="sc-stock-left">
+            <span class="sc-code">${codeOnly(t.symbol)}</span>
+            <span class="sc-sname">${t.name||''}</span>
+            ${fnet!=null&&fnet>0?`<span class="sc-foreign-badge badge-buy">外資+${fnet.toLocaleString()}</span>`:''}
+            ${fnet!=null&&fnet<0?`<span class="sc-foreign-badge badge-sell">外資${fnet.toLocaleString()}</span>`:''}
+          </div>
+          <span class="down">${t.chg?.toFixed(2)||0}%</span>
+        </div>`;
+      }),
+    ].join('');
+
+    return`<div class="sector-card">
+      <div class="sc-header">
+        <div class="sc-name">${s.name}</div>
+        <div class="sc-chg ${cls}">${sign}${s.avg.toFixed(2)}%</div>
       </div>
-      <div class="sector-bar-wrap">
-        <div class="bar-up" style="width:${upPct}%"></div>
-        <div class="bar-down" style="width:${downPct}%"></div>
+      <div class="sc-bar">
+        <div class="sc-bar-up" style="width:${upPct}%"></div>
+        <div class="sc-bar-down" style="width:${dnPct}%"></div>
       </div>
-      <div class="sector-sub">
+      <div class="sc-counts">
         <span class="up">▲ ${s.up}</span>
         <span class="down">▼ ${s.down}</span>
         <span class="flat">— ${s.flat}</span>
-        <span>共 ${s.total} 檔</span>
+        <span style="color:var(--text3)">共 ${s.total} 檔</span>
       </div>
-      <div class="top-stocks">${topHtml}</div>
+      ${s.foreignNet!==0?`<div class="sc-foreign">
+        <span class="sc-foreign-label">外資淨買超</span>
+        <span class="sc-foreign-net ${fCls}">${fSign}${s.foreignNet.toLocaleString()} 張</span>
+        <span style="color:var(--text3);font-size:10px">（${Object.keys(foreignBySymbol).length>0?'今日':'尚未載入'}）</span>
+      </div>`:''}
+      <div class="sc-stocks">${topRows}</div>
     </div>`;
   }).join('');
 }
 
-loadAndRender().catch(()=>{document.getElementById('sectorGrid').innerHTML='<p style="color:var(--text3);padding:40px">⚠ 無法載入資料</p>';});
+loadAndRender().catch(e=>{
+  document.getElementById('sectorGrid').innerHTML=`<div class="loading-msg">⚠ 載入失敗：${e.message}</div>`;
+});
 </script>
 </body>
 </html>

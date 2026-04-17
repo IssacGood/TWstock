@@ -19,13 +19,13 @@
 body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
 
 /* ── Topbar ── */
-.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
-.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px;white-space:nowrap}
-.topbar-nav{display:flex;gap:2px;flex-wrap:nowrap;overflow-x:auto}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;position:sticky;top:0;z-index:100;gap:8px}
+.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px;white-space:nowrap;justify-self:start}
+.topbar-nav{display:flex;gap:2px;flex-wrap:nowrap;overflow-x:auto;justify-self:center}
 .topbar-nav a{color:var(--text2);text-decoration:none;font-size:13px;padding:4px 10px;border-radius:6px;white-space:nowrap;transition:all .15s}
 .topbar-nav a:hover{color:var(--text);background:var(--bg3)}
 .topbar-nav a.active{color:var(--accent);background:rgba(0,200,150,.1)}
-.updated-tag{font-size:11px;color:var(--text3);font-family:var(--mono);white-space:nowrap}
+.updated-tag{font-size:11px;color:var(--text3);font-family:var(--mono);white-space:nowrap;justify-self:end;text-align:right}
 
 /* ── Layout ── */
 .layout{display:grid;grid-template-columns:256px 1fr;min-height:calc(100vh - 52px)}
@@ -150,6 +150,29 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .kbd-hint{font-size:11px;color:var(--text3);text-align:center;margin-top:8px}
 kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;font-family:var(--mono)}
 
+/* ── 額外資訊區塊（營收/外資/股息） ── */
+.extra-section{margin-bottom:14px}
+.extra-title{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.extra-title::before{content:'';width:3px;height:11px;background:var(--accent2);border-radius:2px;display:block}
+.revenue-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px}
+.rev-box{background:var(--bg3);border-radius:6px;padding:7px 10px}
+.rev-month{font-size:10px;color:var(--text3);margin-bottom:2px}
+.rev-val{font-family:var(--mono);font-size:11px;font-weight:600}
+.rev-yoy{font-size:10px;margin-top:1px}
+
+.foreign-row{display:flex;gap:8px;flex-wrap:wrap}
+.foreign-box{background:var(--bg3);border-radius:6px;padding:7px 12px;display:flex;flex-direction:column;gap:2px;min-width:100px}
+.foreign-date{font-size:10px;color:var(--text3)}
+.foreign-net{font-family:var(--mono);font-size:13px;font-weight:700}
+.foreign-detail{font-size:10px;color:var(--text2)}
+
+.dividend-row{display:flex;gap:8px;flex-wrap:wrap}
+.div-box{background:var(--bg3);border-radius:6px;padding:7px 12px}
+.div-date{font-size:10px;color:var(--text3);margin-bottom:2px}
+.div-amount{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--gold)}
+
+.extra-empty{font-size:12px;color:var(--text3);padding:8px 0}
+
 .empty{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text3)}
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--text2);gap:14px}
 .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
@@ -233,6 +256,7 @@ kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;paddi
       <div class="filter-group">
         <div class="filter-group-label">成交量 / K 棒</div>
         <label class="filter-item"><input type="checkbox" data-flag="vol_surge"><span>爆量（1.5× 均量）</span></label>
+        <label class="filter-item"><input type="checkbox" data-flag="high_turnover"><span>高周轉率（>3%）</span></label>
         <label class="filter-item"><input type="checkbox" data-flag="bullish_candle"><span>今日收紅K</span></label>
         <label class="filter-item"><input type="checkbox" data-flag="new_high_50"><span>近50日新高</span></label>
         <label class="filter-item"><input type="checkbox" data-flag="new_low_50"><span>近50日新低</span></label>
@@ -307,6 +331,10 @@ kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;paddi
       <div class="chart-loading"><div class="spinner-sm"></div><span>載入 K 線資料…</span></div>
     </div>
     <div class="modal-stats" id="modalStats"></div>
+
+    <!-- 額外資訊：營收 / 外資 / 股息 -->
+    <div id="modalExtra" style="margin-top:14px"></div>
+
     <div class="kbd-hint">鍵盤 <kbd>←</kbd> <kbd>→</kbd> 切換股票</div>
   </div>
 </div>
@@ -326,6 +354,7 @@ const FLAG_LABELS = {
   new_high_50:   ['50日新高','bull'], new_low_50:    ['50日新低','bear'],
   price_u100:    ['≤100元','info'],   price_u200:    ['≤200元','info'],
   price_u500:    ['≤500元','info'],   price_u1000:   ['≤1000元','info'],
+  high_turnover: ['高周轉率','info'],
 };
 
 // 大類對應（把34個細分類合併成大類按鈕）
@@ -492,6 +521,8 @@ function renderPage(){
     const code=codeOnly(s.symbol);
     const flagsHtml=Object.entries(s.flags||{}).filter(([k,v])=>v&&FLAG_LABELS[k]).slice(0,4)
       .map(([k])=>{const[l,t]=FLAG_LABELS[k];return`<span class="flag-tag flag-${t}">${l}</span>`;}).join('');
+    const turnover=s.ind?.turnover;
+    const turnoverHtml=turnover!=null?`<span style="font-size:10px;color:var(--text3);font-family:var(--mono)">周轉${turnover.toFixed(1)}%</span>`:'';
     return `<div class="stock-card" onclick="openModal(${start+i})">
       <div class="card-header">
         <div class="card-left">
@@ -502,7 +533,8 @@ function renderPage(){
         <div class="card-right">
           <div class="card-close ${cls}">${s.lc??'-'}</div>
           <div class="card-change ${cls}">${sign}${pct!=null?pct.toFixed(2)+'%':'-'}</div>
-          <a class="cnyes-link" href="${cnyesUrl(s.symbol)}" target="_blank" rel="noopener" onclick="e=>e.stopPropagation()">📰 鉅亨</a>
+          ${turnoverHtml}
+          <a class="cnyes-link" href="${cnyesUrl(s.symbol)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📰 鉅亨</a>
         </div>
       </div>
       <div class="card-flags">${flagsHtml||'<span style="font-size:10px;color:var(--text3)">點擊查看 K 線 →</span>'}</div>
@@ -549,6 +581,8 @@ async function openModal(idx){
     const raw=map.get(s.symbol)||[];
     s._rawCandles=raw;
     await buildModalChart(s,raw,120);
+    // 載入額外資料（不阻塞）
+    loadExtraData().then(()=>renderExtraInfo(s));
   }catch(e){
     document.getElementById('modalChart').innerHTML='<div class="chart-loading" style="color:#e84040">⚠ K線載入失敗</div>';
   }
@@ -596,16 +630,18 @@ async function buildModalChart(stock,rawCandles,range){
     width:el.clientWidth||920,height:400,
     layout:{background:{color:'#141720'},textColor:'#8892aa'},
     grid:{vertLines:{color:'#1c2030'},horzLines:{color:'#1c2030'}},
-    rightPriceScale:{borderColor:'#252a3a'},
-    timeScale:{borderColor:'#252a3a',timeVisible:true},
+    rightPriceScale:{visible:false},
+    leftPriceScale:{visible:true,borderColor:'#252a3a'},
+    timeScale:{borderColor:'#252a3a',timeVisible:true,rightOffset:3},
     crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
   });
 
-  // ★ 台灣慣例：漲紅跌綠
+  // ★ 台灣慣例：漲紅跌綠，priceScaleId 指定左軸
   const cs=modalChartObj.addCandlestickSeries({
     upColor:'#e84040',downColor:'#28a745',
     borderUpColor:'#e84040',borderDownColor:'#28a745',
     wickUpColor:'#e84040',wickDownColor:'#28a745',
+    priceScaleId:'left',
   });
   cs.setData(candles.map(c=>({time:c[0],open:c[1],high:c[2],low:c[3],close:c[4]})));
 
@@ -631,7 +667,7 @@ async function buildModalChart(stock,rawCandles,range){
   });
 
   const addLine=(color,data,title,style=0)=>{
-    const s=modalChartObj.addLineSeries({color,lineWidth:1,title,lineStyle:style});
+    const s=modalChartObj.addLineSeries({color,lineWidth:1,title,lineStyle:style,priceScaleId:'left'});
     s.setData(data.filter(d=>d.value!=null));
   };
   addLine('#f0b840',candles.map((c,i)=>({time:c[0],value:ma5[i]})),'MA5');
@@ -656,14 +692,109 @@ async function buildModalChart(stock,rawCandles,range){
     <div class="stat-box"><div class="stat-label">MA20</div><div class="stat-value">${lma20!=null?lma20.toFixed(2):'-'}</div></div>
     <div class="stat-box"><div class="stat-label">MA60</div><div class="stat-value">${lma60!=null?lma60.toFixed(2):'-'}</div></div>
     <div class="stat-box"><div class="stat-label">布林上軌</div><div class="stat-value">${lbb.u!=null?lbb.u.toFixed(2):'-'}</div></div>
-    <div class="stat-box"><div class="stat-label">布林下軌</div><div class="stat-value">${lbb.l!=null?lbb.l.toFixed(2):'-'}</div></div>`;
+    <div class="stat-box"><div class="stat-label">布林下軌</div><div class="stat-value">${lbb.l!=null?lbb.l.toFixed(2):'-'}</div></div>
+    <div class="stat-box"><div class="stat-label">今日周轉率</div><div class="stat-value">${stock.ind?.turnover!=null?stock.ind.turnover.toFixed(2)+'%':'-'}</div></div>
+    <div class="stat-box"><div class="stat-label">類股</div><div class="stat-value" style="font-size:12px;color:var(--text2)">${stock.group||'-'}</div></div>`;
 
   stock._rawCandles=rawCandles;
 }
 
 // ══════════════════════════════════════════════
-//  事件監聽
+//  額外資料：營收 / 外資 / 股息
 // ══════════════════════════════════════════════
+let revenueData=null, foreignData=null, dividendData=null;
+
+async function loadExtraData(){
+  // 靜默載入，失敗不影響主流程
+  try{
+    if(!revenueData){
+      const r=await fetch('data/revenue.json?t='+Date.now());
+      if(r.ok) revenueData=await r.json();
+    }
+  }catch(e){}
+  try{
+    if(!foreignData){
+      const r=await fetch('data/foreign.json?t='+Date.now());
+      if(r.ok) foreignData=await r.json();
+    }
+  }catch(e){}
+  try{
+    if(!dividendData){
+      const r=await fetch('data/dividend.json?t='+Date.now());
+      if(r.ok) dividendData=await r.json();
+    }
+  }catch(e){}
+}
+
+function renderExtraInfo(stock){
+  const el=document.getElementById('modalExtra');
+  const sym=stock.symbol;
+  let html='';
+
+  // ── 月營收 ──
+  const revMap=(revenueData?.data||{})[sym]||(revenueData?.data||{})[sym.replace('.TW','').replace('.TWO','')];
+  if(revMap && Object.keys(revMap).length){
+    const months=Object.keys(revMap).sort().slice(-12);
+    html+=`<div class="extra-section">
+      <div class="extra-title">📊 近期月營收（千元）</div>
+      <div class="revenue-grid">
+        ${months.map(m=>{
+          const d=revMap[m];
+          const yoy=d.yoy!=null?d.yoy:null;
+          const yoyCls=yoy==null?'flat':yoy>0?'up':'down';
+          const yoyStr=yoy!=null?(yoy>0?'+':'')+yoy.toFixed(1)+'%':'';
+          return`<div class="rev-box">
+            <div class="rev-month">${m}</div>
+            <div class="rev-val">${(d.rev/1000).toFixed(0)}</div>
+            ${yoyStr?`<div class="rev-yoy ${yoyCls}">YoY ${yoyStr}</div>`:''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  } else if(revenueData){
+    html+=`<div class="extra-section"><div class="extra-title">📊 月營收</div><div class="extra-empty">此股票無營收資料</div></div>`;
+  }
+
+  // ── 外資買賣超 ──
+  const forSym=(foreignData?.by_symbol||{})[sym]||(foreignData?.by_symbol||{})[sym.replace('.TW','').replace('.TWO','')];
+  if(forSym && forSym.length){
+    const recent=forSym.slice(-10).reverse();
+    html+=`<div class="extra-section">
+      <div class="extra-title">🏦 外資買賣超（張）</div>
+      <div class="foreign-row">
+        ${recent.map(d=>{
+          const cls=d.net>0?'up':d.net<0?'down':'flat';
+          const sign=d.net>0?'+':'';
+          return`<div class="foreign-box">
+            <div class="foreign-date">${d.d}</div>
+            <div class="foreign-net ${cls}">${sign}${d.net.toLocaleString()}</div>
+            <div class="foreign-detail">買${d.buy?.toLocaleString()||0} 賣${d.sell?.toLocaleString()||0}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  } else if(foreignData){
+    html+=`<div class="extra-section"><div class="extra-title">🏦 外資買賣超</div><div class="extra-empty">此股票無外資資料</div></div>`;
+  }
+
+  // ── 股息 ──
+  const divArr=(dividendData?.data||{})[sym]||(dividendData?.data||{})[sym.replace('.TW','').replace('.TWO','')];
+  if(divArr && divArr.length){
+    html+=`<div class="extra-section">
+      <div class="extra-title">💰 近期股息發放</div>
+      <div class="dividend-row">
+        ${divArr.slice(-6).reverse().map(d=>`<div class="div-box">
+          <div class="div-date">${d.d}</div>
+          <div class="div-amount">$${d.a}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  } else if(dividendData){
+    html+=`<div class="extra-section"><div class="extra-title">💰 股息</div><div class="extra-empty">無股息資料（可能為非配息股）</div></div>`;
+  }
+
+  el.innerHTML=html||'<div style="font-size:11px;color:var(--text3);padding:4px 0">營收/外資/股息資料載入中（首次需跑 Actions）</div>';
+}
 // Range 切換
 document.querySelector('.chart-controls').addEventListener('click',async e=>{
   const btn=e.target.closest('.range-btn');

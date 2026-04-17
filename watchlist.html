@@ -3,152 +3,99 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>自訂清單 — TWSTOCK</title>
+<title>批量搜尋 — TWSTOCK</title>
 <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{--bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--border:#252a3a;--accent:#00c896;--accent2:#4f8ef7;--gold:#f0b840;--text:#e8eaf0;--text2:#8892aa;--text3:#55607a;--up:#e84040;--down:#28a745;--radius:8px;--font:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
 
-:root {
-  --bg:      #0d0f14;
-  --bg2:     #141720;
-  --bg3:     #1c2030;
-  --border:  #252a3a;
-  --accent:  #00c896;
-  --accent2: #4f8ef7;
-  --red:     #f05050;
-  --gold:    #f0b840;
-  --text:    #e8eaf0;
-  --text2:   #8892aa;
-  --text3:   #55607a;
-  --up:      #26a69a;
-  --down:    #ef5350;
-  --radius:  8px;
-  --font:    'Noto Sans TC', sans-serif;
-  --mono:    'JetBrains Mono', monospace;
-}
-*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-body { background:var(--bg); color:var(--text); font-family:var(--font); min-height:100vh; }
-
-.topbar {
-  background:var(--bg2); border-bottom:1px solid var(--border);
-  padding:0 24px; height:56px; display:flex; align-items:center;
-  justify-content:space-between; position:sticky; top:0; z-index:100;
-}
-.topbar-logo { font-family:var(--mono); font-weight:600; font-size:16px; color:var(--accent); letter-spacing:2px; }
-.topbar-nav a { color:var(--text2); text-decoration:none; margin-left:24px; font-size:14px; transition:color .2s; }
-.topbar-nav a:hover, .topbar-nav a.active { color:var(--accent); }
+/* ── Topbar 置中 ── */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;position:sticky;top:0;z-index:100;gap:8px}
+.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px;justify-self:start}
+.topbar-nav{display:flex;gap:2px;justify-self:center}
+.topbar-nav a{color:var(--text2);text-decoration:none;font-size:13px;padding:4px 10px;border-radius:6px;white-space:nowrap;transition:all .15s}
+.topbar-nav a:hover{color:var(--text);background:var(--bg3)}
+.topbar-nav a.active{color:var(--accent);background:rgba(0,200,150,.1)}
 
 /* Input */
-.input-section { max-width:900px; margin:32px auto 0; padding:0 24px; }
-.input-card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:24px; }
-.input-card h2 { font-size:16px; font-weight:700; margin-bottom:8px; }
-.input-card p  { font-size:13px; color:var(--text2); margin-bottom:16px; line-height:1.7; }
-.input-row { display:flex; gap:12px; align-items:flex-start; }
-textarea {
-  flex:1; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius);
-  color:var(--text); font-family:var(--mono); font-size:14px; padding:12px 14px;
-  resize:vertical; min-height:80px; outline:none; transition:border-color .2s;
-}
-textarea::placeholder { color:var(--text3); }
-textarea:focus { border-color:var(--accent2); }
-.action-col { display:flex; flex-direction:column; gap:8px; min-width:100px; }
-.btn-primary {
-  background:var(--accent); color:#0d0f14; border:none; border-radius:var(--radius);
-  font-family:var(--font); font-size:14px; font-weight:700; padding:10px 18px;
-  cursor:pointer; transition:opacity .15s;
-}
-.btn-primary:hover { opacity:.85; }
-.btn-secondary {
-  background:transparent; color:var(--text2); border:1px solid var(--border);
-  border-radius:var(--radius); font-family:var(--font); font-size:13px;
-  padding:8px 12px; cursor:pointer; transition:all .15s;
-}
-.btn-secondary:hover { border-color:var(--text2); color:var(--text); }
-.preset-row { margin-top:12px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
-.preset-label { font-size:12px; color:var(--text3); }
-.preset-tag {
-  font-size:11px; padding:4px 10px; border:1px solid var(--border); border-radius:20px;
-  cursor:pointer; color:var(--text2); transition:all .15s; background:var(--bg3);
-}
-.preset-tag:hover { border-color:var(--accent2); color:var(--accent2); }
-.status-bar { margin-top:16px; font-size:13px; color:var(--text2); display:flex; align-items:center; gap:8px; min-height:24px; }
-.status-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0; }
-.status-dot.loading { background:var(--gold); animation:pulse .8s infinite; }
-.status-dot.error   { background:var(--red); }
-@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+.input-section{max-width:900px;margin:24px auto 0;padding:0 16px}
+.input-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
+.input-card h2{font-size:16px;font-weight:700;margin-bottom:6px}
+.input-card p{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.7}
+.input-row{display:flex;gap:10px;align-items:flex-start}
+textarea{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--mono);font-size:14px;padding:10px 12px;resize:vertical;min-height:72px;outline:none;transition:border-color .2s}
+textarea::placeholder{color:var(--text3)}
+textarea:focus{border-color:var(--accent2)}
+.action-col{display:flex;flex-direction:column;gap:6px;min-width:90px}
+.btn-primary{background:var(--accent);color:#0d0f14;border:none;border-radius:var(--radius);font-family:var(--font);font-size:14px;font-weight:700;padding:10px 14px;cursor:pointer;transition:opacity .15s}
+.btn-primary:hover{opacity:.85}
+.btn-secondary{background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font);font-size:13px;padding:8px 10px;cursor:pointer;transition:all .15s}
+.btn-secondary:hover{border-color:var(--text2);color:var(--text)}
+.preset-row{margin-top:10px;display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.preset-label{font-size:12px;color:var(--text3)}
+.preset-tag{font-size:11px;padding:3px 9px;border:1px solid var(--border);border-radius:20px;cursor:pointer;color:var(--text2);transition:all .15s;background:var(--bg3)}
+.preset-tag:hover{border-color:var(--accent2);color:var(--accent2)}
+.status-bar{margin-top:12px;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:7px;min-height:22px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.status-dot.loading{background:var(--gold);animation:pulse .8s infinite}
+.status-dot.error{background:var(--up)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* Charts */
-.charts-section { max-width:1400px; margin:24px auto 40px; padding:0 24px; }
-.charts-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
-.charts-header h3 { font-size:14px; color:var(--text2); font-weight:500; }
-.view-toggle { display:flex; gap:4px; }
-.toggle-btn {
-  background:var(--bg3); border:1px solid var(--border); border-radius:6px;
-  color:var(--text3); padding:5px 10px; font-size:12px; cursor:pointer; transition:all .15s;
-}
-.toggle-btn.active { border-color:var(--accent2); color:var(--accent2); }
-
-.charts-grid { display:grid; gap:16px; }
-.charts-grid.col1 { grid-template-columns:1fr; }
-.charts-grid.col2 { grid-template-columns:repeat(2,1fr); }
-.charts-grid.col3 { grid-template-columns:repeat(3,1fr); }
+.charts-section{max-width:1400px;margin:20px auto 40px;padding:0 16px}
+.charts-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.charts-header h3{font-size:14px;color:var(--text2);font-weight:500}
+.view-toggle{display:flex;gap:4px}
+.toggle-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text3);padding:5px 10px;font-size:12px;cursor:pointer;transition:all .15s}
+.toggle-btn.active{border-color:var(--accent2);color:var(--accent2)}
+.charts-grid{display:grid;gap:14px}
+.charts-grid.col1{grid-template-columns:1fr}
+.charts-grid.col2{grid-template-columns:repeat(2,1fr)}
+.charts-grid.col3{grid-template-columns:repeat(3,1fr)}
 
 /* Chart card */
-.chart-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
-.chart-card-header {
-  padding:12px 16px 8px; display:flex; justify-content:space-between;
-  align-items:center; border-bottom:1px solid var(--border);
-}
-.chart-card-left { display:flex; align-items:baseline; gap:10px; }
-.chart-code { font-family:var(--mono); font-size:16px; font-weight:600; color:var(--accent2); }
-.chart-name { font-size:12px; color:var(--text2); }
-.chart-card-right { display:flex; align-items:center; gap:10px; }
-.chart-price { font-family:var(--mono); font-size:16px; font-weight:600; }
-.chart-chg   { font-size:12px; font-family:var(--mono); margin-top:1px; }
-.up   { color:#26a69a; }
-.down { color:#ef5350; }
-.flat { color:var(--text2); }
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.chart-card-header{padding:10px 14px 7px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.chart-card-left{display:flex;align-items:baseline;gap:8px}
+.chart-code{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--accent2)}
+.chart-name{font-size:12px;color:var(--text2)}
+.chart-group{font-size:10px;color:var(--text3);margin-left:2px}
+.chart-card-right{display:flex;align-items:center;gap:8px}
+.chart-price{font-family:var(--mono);font-size:15px;font-weight:600}
+.chart-chg{font-size:11px;font-family:var(--mono)}
+.up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--text2)}
+.cnyes-link{display:inline-flex;align-items:center;gap:2px;font-size:10px;color:var(--text3);text-decoration:none;border:1px solid var(--border);border-radius:3px;padding:2px 6px;transition:all .15s}
+.cnyes-link:hover{color:var(--gold);border-color:var(--gold)}
+.remove-btn{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:15px;padding:2px 5px;border-radius:4px;transition:color .15s;line-height:1}
+.remove-btn:hover{color:var(--up)}
 
-.cnyes-link {
-  display:inline-flex; align-items:center; gap:3px; font-size:11px;
-  color:var(--text3); text-decoration:none; border:1px solid var(--border);
-  border-radius:4px; padding:3px 7px; transition:all .15s; white-space:nowrap;
-}
-.cnyes-link:hover { color:var(--gold); border-color:var(--gold); }
-.remove-btn {
-  background:transparent; border:none; color:var(--text3); cursor:pointer;
-  font-size:16px; padding:2px 6px; border-radius:4px; transition:color .15s; line-height:1;
-}
-.remove-btn:hover { color:var(--red); }
+/* Range bar */
+.card-range-bar{display:flex;gap:4px;padding:5px 10px;border-bottom:1px solid var(--border);align-items:center}
+.crb-label{font-size:10px;color:var(--text3);margin-right:2px}
+.crb{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text3);font-size:10px;padding:2px 7px;cursor:pointer;transition:all .15s}
+.crb.active,.crb:hover{border-color:var(--accent2);color:var(--accent2)}
 
-/* Range bar per card */
-.card-range-bar { display:flex; gap:4px; padding:6px 12px; border-bottom:1px solid var(--border); }
-.card-range-btn {
-  background:var(--bg3); border:1px solid var(--border); border-radius:5px;
-  color:var(--text3); font-size:10px; padding:2px 7px; cursor:pointer;
-  font-family:var(--font); transition:all .15s;
-}
-.card-range-btn.active, .card-range-btn:hover { border-color:var(--accent2); color:var(--accent2); }
+/* OHLCV bar */
+.ohlcv-bar{font-family:var(--mono);font-size:11px;color:var(--text2);padding:3px 10px;min-height:22px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.ohlcv-bar span{color:var(--text3)}
 
-.chart-wrap { padding:4px 0; }
-.chart-inner { height:300px; }
+.chart-wrap{padding:4px 0}
+.chart-inner{height:300px}
+.chart-indicators{padding:7px 14px 10px;display:flex;flex-wrap:wrap;gap:14px;border-top:1px solid var(--border)}
+.ind-item{display:flex;flex-direction:column;gap:1px}
+.ind-label{font-size:10px;color:var(--text3)}
+.ind-val{font-family:var(--mono);font-size:12px}
 
-.chart-indicators {
-  padding:8px 16px 12px; display:flex; flex-wrap:wrap; gap:16px;
-  border-top:1px solid var(--border);
-}
-.ind-item { display:flex; flex-direction:column; gap:2px; }
-.ind-label { font-size:10px; color:var(--text3); }
-.ind-val   { font-family:var(--mono); font-size:13px; }
-
-.empty-hint { text-align:center; padding:60px 20px; color:var(--text3); }
-.empty-hint .icon { font-size:48px; margin-bottom:16px; opacity:.4; }
-.empty-hint p { font-size:14px; line-height:1.8; }
+.empty-hint{text-align:center;padding:50px 20px;color:var(--text3)}
+.empty-hint .icon{font-size:44px;margin-bottom:14px;opacity:.4}
+.empty-hint p{font-size:14px;line-height:1.8}
 
 @media(max-width:768px){
-  .input-row { flex-direction:column; }
-  .action-col { flex-direction:row; }
-  .charts-grid.col2, .charts-grid.col3 { grid-template-columns:1fr; }
+  .input-row{flex-direction:column}
+  .action-col{flex-direction:row}
+  .charts-grid.col2,.charts-grid.col3{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -157,14 +104,21 @@ textarea:focus { border-color:var(--accent2); }
 <div class="topbar">
   <div class="topbar-logo">TWSTOCK</div>
   <nav class="topbar-nav">
-    <a href="index.html">選股篩選</a>
-    <a href="watchlist.html" class="active">自訂清單</a>
+    <a href="index.html">選股</a>
+    <a href="watchlist.html" class="active">批量搜尋</a>
+    <a href="favorites.html">我的最愛</a>
+    <a href="market.html">大盤/期貨</a>
+    <a href="stats.html">統計</a>
+    <a href="sectors.html">類股排行</a>
+    <a href="ai.html">AI選股</a>
+    <a href="fear.html">貪婪指數</a>
   </nav>
+  <div></div>
 </div>
 
 <section class="input-section">
   <div class="input-card">
-    <h2>貼上股票代碼</h2>
+    <h2>批量搜尋 K 線</h2>
     <p>輸入台股代碼，用空格、逗號或換行分隔。上市加 <code style="color:var(--accent)">.TW</code>，上櫃加 <code style="color:var(--accent)">.TWO</code>，或直接輸入數字。</p>
     <div class="input-row">
       <textarea id="codeInput" placeholder="例：2330 2317 2454&#10;或：2330.TW, 6669.TWO"></textarea>
@@ -198,172 +152,215 @@ textarea:focus { border-color:var(--accent2); }
   <div class="charts-grid col2" id="chartsGrid">
     <div class="empty-hint">
       <div class="icon">📈</div>
-      <p>在上方輸入股票代碼<br>點擊「載入 K 線」即可顯示 K 棒圖表</p>
+      <p>在上方輸入股票代碼<br>點擊「載入 K 線」即可顯示</p>
     </div>
   </div>
 </section>
 
 <script>
-const PRESETS = {
-  semi:    '2330 2317 2454 2308 2382',
-  finance: '2882 2881 2891 2886 2884',
-  etf:     '0050.TW 0056.TW 00878.TW 00881.TW',
+// ── 常數 ─────────────────────────────────
+const PRESETS={
+  semi:'2330 2317 2454 2308 2382',
+  finance:'2882 2881 2891 2886 2884',
+  etf:'0050.TW 0056.TW 00878.TW 00881.TW',
 };
+const cardCharts={};
+let cachedIndex=null;
+const batchCache={};
+const codeOnly=s=>s.replace('.TWO','').replace('.TW','');
+const cnyesUrl=s=>`https://www.cnyes.com/twstock/${codeOnly(s)}`;
 
-// symbol → { chart, candles }
-const cardCharts = {};
-let cachedData = null;
+// ── 指標計算 ─────────────────────────────
+function calcSMA(arr,n){return arr.map((_,i)=>i<n-1?null:arr.slice(i-n+1,i+1).reduce((a,b)=>a+b,0)/n);}
+function calcEMA(arr,n){const k=2/(n+1);let e=[];arr.forEach((v,i)=>{e.push(i===0?v:v*k+e[i-1]*(1-k));});return e;}
+function calcRSI(arr,n=14){const r=Array(arr.length).fill(null);for(let i=n;i<arr.length;i++){let g=0,l=0;for(let j=i-n+1;j<=i;j++){const d=arr[j]-arr[j-1];if(d>0)g+=d;else l-=d;}r[i]=l===0?100:100-100/(1+g/l);}return r;}
+function calcMACD(arr){const line=calcEMA(arr,12).map((v,i)=>v-calcEMA(arr,26)[i]);return{line,sig:calcEMA(line,9)};}
+function calcBB(arr,n=20){return arr.map((_,i)=>{if(i<n-1)return{u:null,l:null};const sl=arr.slice(i-n+1,i+1),mean=sl.reduce((a,b)=>a+b,0)/n,std=Math.sqrt(sl.reduce((a,b)=>a+(b-mean)**2,0)/n);return{u:mean+2*std,l:mean-2*std};});}
 
-function applyPreset(key) {
-  document.getElementById('codeInput').value = PRESETS[key] || '';
-}
+function applyPreset(k){document.getElementById('codeInput').value=PRESETS[k]||'';}
 
-function setColumns(n, btn) {
-  document.getElementById('chartsGrid').className = `charts-grid col${n}`;
-  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+function setColumns(n,btn){
+  document.getElementById('chartsGrid').className=`charts-grid col${n}`;
+  document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  setTimeout(() => {
-    Object.values(cardCharts).forEach(({chart, el}) => {
-      try { chart.applyOptions({width: el.clientWidth || 600}); } catch(e){}
+  setTimeout(()=>{
+    Object.values(cardCharts).forEach(({chart,el})=>{
+      try{chart.applyOptions({width:el.clientWidth||600});}catch(e){}
     });
-  }, 60);
+  },60);
 }
 
-function parseSymbols(raw) {
+function parseSymbols(raw){
   return raw.split(/[\s,，\n]+/).map(s=>s.trim().toUpperCase()).filter(Boolean)
-    .map(s => {
-      if (s.endsWith('.TW') || s.endsWith('.TWO')) return s;
-      return s + '.TW';
+    .map(s=>(s.endsWith('.TW')||s.endsWith('.TWO'))?s:s+'.TW');
+}
+
+function setStatus(msg,type='idle'){
+  const dot=document.getElementById('statusDot');
+  document.getElementById('statusMsg').textContent=msg;
+  dot.style.display=msg?'block':'none';
+  dot.className='status-dot '+(type==='loading'?'loading':type==='error'?'error':'');
+}
+
+// ── 資料載入 ─────────────────────────────
+async function getIndex(){
+  if(cachedIndex) return cachedIndex;
+  try{
+    const res=await fetch('data/stocks.json?t='+Date.now());
+    cachedIndex=await res.json();
+  }catch(e){cachedIndex={stocks:[]};}
+  return cachedIndex;
+}
+
+async function loadBatch(batchId){
+  if(batchCache[batchId]) return batchCache[batchId];
+  const res=await fetch(`data/stocks_${batchId}.json?t=`+Date.now());
+  const d=await res.json();
+  const map=new Map();
+  for(const s of(d.stocks||[])) map.set(s.symbol,{candles:s.candles||[],ind:s.ind||{}});
+  batchCache[batchId]=map;
+  return map;
+}
+
+async function getStockFull(symbol){
+  // 從 index 找基本資訊
+  const idx=await getIndex();
+  const meta=(idx.stocks||[]).find(s=>s.symbol===symbol||s.symbol===symbol+'.TW'||s.symbol===symbol+'.TWO')||null;
+  if(!meta) return null;
+  // 從對應 batch 載 K 棒
+  const map=await loadBatch(meta.batch||'A');
+  const kdata=map.get(meta.symbol)||null;
+  return{...meta, rawCandles:kdata?.candles||[], ind:kdata?.ind||meta.ind||{}};
+}
+
+// ── 建立卡片圖表 ─────────────────────────
+function buildCardChart(rawCandles, cardId, range){
+  const el=document.getElementById('chart-inner-'+cardId);
+  if(!el) return;
+  if(cardCharts[cardId]){try{cardCharts[cardId].chart.remove();}catch(e){}}
+
+  // rawCandles 格式：[[date,o,h,l,c,v], ...]
+  let c=rawCandles.filter(x=>x[1]&&x[4]);
+  if(range>0) c=c.slice(-range);
+  if(!c.length) return;
+
+  const closes=c.map(x=>x[4]);
+  const ma5=calcSMA(closes,5),ma20=calcSMA(closes,20),ma60=calcSMA(closes,60);
+  const rsi14=calcRSI(closes,14);
+  const{line:macdLine}=calcMACD(closes);
+  const bb=calcBB(closes,20);
+
+  const chart=LightweightCharts.createChart(el,{
+    width:el.clientWidth||600, height:300,
+    layout:{background:{color:'#141720'},textColor:'#8892aa'},
+    grid:{vertLines:{color:'#1c2030'},horzLines:{color:'#1c2030'}},
+    // ★ 價格標籤移到左側
+    rightPriceScale:{visible:false},
+    leftPriceScale:{visible:true,borderColor:'#252a3a'},
+    timeScale:{borderColor:'#252a3a',timeVisible:true,rightOffset:3},
+    crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
+  });
+
+  // ★ 台灣慣例：漲紅跌綠
+  const cs=chart.addCandlestickSeries({
+    upColor:'#e84040',downColor:'#28a745',
+    borderUpColor:'#e84040',borderDownColor:'#28a745',
+    wickUpColor:'#e84040',wickDownColor:'#28a745',
+    priceScaleId:'left',
+  });
+  cs.setData(c.map(x=>({time:x[0],open:x[1],high:x[2],low:x[3],close:x[4]})));
+
+  // OHLCV tooltip
+  const ohlcvEl=document.getElementById('ohlcv-'+cardId);
+  if(ohlcvEl){
+    chart.subscribeCrosshairMove(p=>{
+      if(!p.time){ohlcvEl.innerHTML='<span>移動滑鼠到 K 棒上</span>';return;}
+      const d=p.seriesData?.get(cs); if(!d) return;
+      const vi=c.findIndex(x=>x[0]===p.time); const vol=vi>=0?c[vi][5]:'-';
+      const oc=d.close>=d.open?'up':'down';
+      ohlcvEl.innerHTML=
+        `<span>${p.time}</span>
+         <span>開 <b class="${oc}">${d.open}</b></span>
+         <span>高 <b style="color:var(--up)">${d.high}</b></span>
+         <span>低 <b style="color:var(--down)">${d.low}</b></span>
+         <span>收 <b class="${oc}">${d.close}</b></span>
+         <span>量 ${typeof vol==='number'?vol.toLocaleString():vol}</span>`;
     });
-}
-
-function setStatus(msg, type='idle') {
-  const dot = document.getElementById('statusDot');
-  const txt = document.getElementById('statusMsg');
-  txt.textContent = msg;
-  dot.style.display = msg ? 'block' : 'none';
-  dot.className = 'status-dot ' + (type==='loading'?'loading':type==='error'?'error':'');
-}
-
-function codeOnly(sym) { return sym.replace('.TWO','').replace('.TW',''); }
-function cnyesUrl(sym) { return `https://www.cnyes.com/twstock/${codeOnly(sym)}`; }
-
-async function getCachedData() {
-  if (cachedData) return cachedData;
-  try {
-    const res = await fetch('data/stocks.json?t=' + Date.now());
-    cachedData = await res.json();
-  } catch(e) { cachedData = {stocks:[]}; }
-  return cachedData;
-}
-
-async function getStockData(symbol) {
-  const data = await getCachedData();
-  return (data.stocks||[]).find(s =>
-    s.symbol===symbol || s.symbol===symbol+'.TW' || s.symbol===symbol+'.TWO'
-  ) || null;
-}
-
-// 為某張卡片建立/重建 chart，依 range
-function buildCardChart(stock, cardId, range) {
-  const el = document.getElementById('chart-inner-'+cardId);
-  if (!el) return;
-
-  // 清除舊的
-  if (cardCharts[cardId]) {
-    try { cardCharts[cardId].chart.remove(); } catch(e){}
   }
 
-  const chart = LightweightCharts.createChart(el, {
-    width:  el.clientWidth || 600,
-    height: 300,
-    layout: { background:{color:'#141720'}, textColor:'#8892aa' },
-    grid:   { vertLines:{color:'#1c2030'}, horzLines:{color:'#1c2030'} },
-    rightPriceScale:{ borderColor:'#252a3a' },
-    timeScale:{ borderColor:'#252a3a', timeVisible:true },
-    crosshair:{ mode:LightweightCharts.CrosshairMode.Normal },
-  });
-
-  let candles = (stock.candles||[]).filter(c=>c.o&&c.c);
-  if (range > 0) candles = candles.slice(-range);
-
-  const cSeries = chart.addCandlestickSeries({
-    upColor:'#26a69a',downColor:'#ef5350',
-    borderUpColor:'#26a69a',borderDownColor:'#ef5350',
-    wickUpColor:'#26a69a',wickDownColor:'#ef5350',
-  });
-  cSeries.setData(candles.map(c=>({time:c.t,open:c.o,high:c.h,low:c.l,close:c.c})));
-
-  const ma5 = chart.addLineSeries({color:'#f0b840',lineWidth:1,title:'MA5'});
-  ma5.setData(candles.filter(c=>c.ma5!=null).map(c=>({time:c.t,value:c.ma5})));
-  const ma20 = chart.addLineSeries({color:'#4f8ef7',lineWidth:1,title:'MA20'});
-  ma20.setData(candles.filter(c=>c.ma20!=null).map(c=>({time:c.t,value:c.ma20})));
-  const ma60 = chart.addLineSeries({color:'#b060f0',lineWidth:1,title:'MA60'});
-  ma60.setData(candles.filter(c=>c.ma60!=null).map(c=>({time:c.t,value:c.ma60})));
-
-  const bbU = chart.addLineSeries({color:'rgba(240,184,64,.35)',lineWidth:1,lineStyle:2});
-  const bbL = chart.addLineSeries({color:'rgba(240,184,64,.35)',lineWidth:1,lineStyle:2});
-  bbU.setData(candles.filter(c=>c.bb_u!=null).map(c=>({time:c.t,value:c.bb_u})));
-  bbL.setData(candles.filter(c=>c.bb_l!=null).map(c=>({time:c.t,value:c.bb_l})));
-
+  const addL=(color,data,style=0)=>{
+    const s=chart.addLineSeries({color,lineWidth:1,lineStyle:style,priceScaleId:'left'});
+    s.setData(data.filter(d=>d.value!=null));
+  };
+  addL('#f0b840',c.map((x,i)=>({time:x[0],value:ma5[i]})));
+  addL('#4f8ef7',c.map((x,i)=>({time:x[0],value:ma20[i]})));
+  addL('#b060f0',c.map((x,i)=>({time:x[0],value:ma60[i]})));
+  addL('rgba(240,184,64,.35)',c.map((x,i)=>({time:x[0],value:bb[i].u})),2);
+  addL('rgba(240,184,64,.35)',c.map((x,i)=>({time:x[0],value:bb[i].l})),2);
   chart.timeScale().fitContent();
-  cardCharts[cardId] = {chart, el};
+
+  // 最後指標數值
+  const lrsi=rsi14[rsi14.length-1], lmacd=macdLine[macdLine.length-1];
+  const lma5=ma5[ma5.length-1], lma20=ma20[ma20.length-1], lma60=ma60[ma60.length-1];
+  const lbb=bb[bb.length-1];
+  const indEl=document.getElementById('ind-'+cardId);
+  if(indEl){
+    indEl.innerHTML=[
+      ['MA5',lma5?.toFixed(2)??'-'],['MA20',lma20?.toFixed(2)??'-'],['MA60',lma60?.toFixed(2)??'-'],
+      ['RSI(14)',lrsi?.toFixed(1)??'-'],['MACD',lmacd?.toFixed(3)??'-'],
+      ['BB上',lbb.u?.toFixed(2)??'-'],['BB下',lbb.l?.toFixed(2)??'-'],
+      ['K棒數',c.length],
+    ].map(([l,v])=>`<div class="ind-item"><div class="ind-label">${l}</div><div class="ind-val">${v}</div></div>`).join('');
+  }
+
+  cardCharts[cardId]={chart,el};
 }
 
-async function loadCharts() {
-  const raw = document.getElementById('codeInput').value.trim();
-  if (!raw) return;
-  const symbols = parseSymbols(raw);
-  if (!symbols.length) return;
+// ── 載入 K 線 ────────────────────────────
+async function loadCharts(){
+  const raw=document.getElementById('codeInput').value.trim();
+  if(!raw) return;
+  const symbols=parseSymbols(raw);
+  if(!symbols.length) return;
 
-  // 清除舊圖
-  Object.values(cardCharts).forEach(({chart})=>{ try{chart.remove();}catch(e){} });
+  Object.values(cardCharts).forEach(({chart})=>{try{chart.remove();}catch(e){}});
   Object.keys(cardCharts).forEach(k=>delete cardCharts[k]);
 
-  const grid = document.getElementById('chartsGrid');
-  grid.innerHTML = '';
-  setStatus(`載入中… 0 / ${symbols.length}`, 'loading');
-  document.getElementById('chartsLabel').textContent = '';
+  const grid=document.getElementById('chartsGrid');
+  grid.innerHTML='';
+  setStatus(`載入中… 0 / ${symbols.length}`,'loading');
+  document.getElementById('chartsLabel').textContent='';
 
-  let done = 0;
+  let done=0;
+  for(const sym of symbols){
+    const stock=await getStockFull(sym);
+    const cardId=sym.replace(/\./g,'_');
 
-  for (const sym of symbols) {
-    const stock = await getStockData(sym);
-    const cardId = sym.replace(/\./g,'_');
-
-    if (!stock) {
-      const card = document.createElement('div');
-      card.className = 'chart-card';
-      card.innerHTML = `
+    if(!stock||!stock.rawCandles?.length){
+      const card=document.createElement('div');
+      card.className='chart-card';
+      card.innerHTML=`
         <div class="chart-card-header">
-          <div class="chart-card-left">
-            <span class="chart-code" style="color:var(--text3)">${codeOnly(sym)}</span>
-            <span class="chart-name" style="color:var(--text3)">不在監控清單中</span>
-          </div>
+          <div class="chart-card-left"><span class="chart-code" style="color:var(--text3)">${codeOnly(sym)}</span><span class="chart-name" style="color:var(--text3)">不在監控清單中</span></div>
           <button class="remove-btn" onclick="this.closest('.chart-card').remove()">✕</button>
         </div>
-        <div style="padding:20px;color:var(--text3);font-size:13px;">
-          請在 <code>scripts/fetch_data.py</code> 的 WATCH_LIST 加入 <code>${sym}</code>，重新跑 Actions 即可。
-        </div>`;
+        <div style="padding:16px;font-size:12px;color:var(--text3)">請在 <code>scripts/fetch_data.py</code> 的 WATCH_LIST 加入此代碼</div>`;
       grid.appendChild(card);
     } else {
-      const pct  = stock.change_pct;
-      const sign = pct > 0 ? '+' : '';
-      const cls  = pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat';
-      const last = (stock.candles||[]).slice(-1)[0] || {};
-      const code = codeOnly(stock.symbol);
-
-      const card = document.createElement('div');
-      card.className = 'chart-card';
-      card.innerHTML = `
+      const pct=stock.chg, cls=pct>0?'up':pct<0?'down':'flat', sign=pct>0?'+':'';
+      const code=codeOnly(stock.symbol);
+      const card=document.createElement('div');
+      card.className='chart-card';
+      card.innerHTML=`
         <div class="chart-card-header">
           <div class="chart-card-left">
             <span class="chart-code">${code}</span>
-            <span class="chart-name">${stock.name}</span>
+            <span class="chart-name">${stock.name||''}</span>
+            <span class="chart-group">${stock.group||''}</span>
           </div>
           <div class="chart-card-right">
             <div>
-              <div class="chart-price ${cls}">${stock.last_close??'-'}</div>
+              <div class="chart-price ${cls}">${stock.lc??'-'}</div>
               <div class="chart-chg ${cls}">${sign}${pct!=null?pct.toFixed(2)+'%':'-'}</div>
             </div>
             <a class="cnyes-link" href="${cnyesUrl(stock.symbol)}" target="_blank" rel="noopener">📰 鉅亨</a>
@@ -371,64 +368,48 @@ async function loadCharts() {
           </div>
         </div>
         <div class="card-range-bar" data-cardid="${cardId}">
-          <span style="font-size:10px;color:var(--text3);margin-right:2px">顯示：</span>
-          <button class="card-range-btn" data-range="50">近50根</button>
-          <button class="card-range-btn active" data-range="120">近6月</button>
-          <button class="card-range-btn" data-range="250">近1年</button>
-          <button class="card-range-btn" data-range="0">全部</button>
+          <span class="crb-label">顯示：</span>
+          <button class="crb" data-range="50">近50根</button>
+          <button class="crb active" data-range="120">近6月</button>
+          <button class="crb" data-range="250">近1年</button>
+          <button class="crb" data-range="0">全部</button>
         </div>
+        <div class="ohlcv-bar" id="ohlcv-${cardId}"><span>移動滑鼠到 K 棒上顯示 開/高/低/收/量</span></div>
         <div class="chart-wrap"><div class="chart-inner" id="chart-inner-${cardId}"></div></div>
-        <div class="chart-indicators">
-          <div class="ind-item"><div class="ind-label">MA5</div><div class="ind-val">${last.ma5!=null?(+last.ma5).toFixed(2):'-'}</div></div>
-          <div class="ind-item"><div class="ind-label">MA20</div><div class="ind-val">${last.ma20!=null?(+last.ma20).toFixed(2):'-'}</div></div>
-          <div class="ind-item"><div class="ind-label">MA60</div><div class="ind-val">${last.ma60!=null?(+last.ma60).toFixed(2):'-'}</div></div>
-          <div class="ind-item"><div class="ind-label">RSI(14)</div><div class="ind-val">${last.rsi!=null?(+last.rsi).toFixed(1):'-'}</div></div>
-          <div class="ind-item"><div class="ind-label">MACD</div><div class="ind-val">${last.macd!=null?(+last.macd).toFixed(3):'-'}</div></div>
-          <div class="ind-item"><div class="ind-label">BB上軌</div><div class="ind-val">${last.bb_u!=null?(+last.bb_u).toFixed(2):'-'}</div></div>
-          <div class="ind-item"><div class="ind-label">BB下軌</div><div class="ind-val">${last.bb_l!=null?(+last.bb_l).toFixed(2):'-'}</div></div>
-          <div class="ind-item"><div class="ind-label">K棒總數</div><div class="ind-val">${(stock.candles||[]).length}</div></div>
-        </div>`;
+        <div class="chart-indicators" id="ind-${cardId}"></div>`;
       grid.appendChild(card);
 
-      // 預設顯示 120 根，等 DOM 就緒後繪圖
-      await new Promise(r => requestAnimationFrame(r));
-      buildCardChart(stock, cardId, 120);
+      await new Promise(r=>requestAnimationFrame(r));
+      const stockRef=stock;
+      buildCardChart(stockRef.rawCandles, cardId, 120);
 
-      // 綁定範圍按鈕事件（把 stock 存在閉包裡）
-      const stockRef = stock;
-      card.querySelector('.card-range-bar').addEventListener('click', e => {
-        const btn = e.target.closest('.card-range-btn');
-        if (!btn) return;
-        card.querySelectorAll('.card-range-btn').forEach(b=>b.classList.remove('active'));
+      // Range 切換
+      card.querySelector('.card-range-bar').addEventListener('click',e=>{
+        const btn=e.target.closest('.crb'); if(!btn) return;
+        card.querySelectorAll('.crb').forEach(b=>b.classList.remove('active'));
         btn.classList.add('active');
-        buildCardChart(stockRef, cardId, parseInt(btn.dataset.range));
+        buildCardChart(stockRef.rawCandles, cardId, parseInt(btn.dataset.range));
       });
     }
-
     done++;
-    setStatus(`載入中… ${done} / ${symbols.length}`, 'loading');
+    setStatus(`載入中… ${done} / ${symbols.length}`,'loading');
   }
 
-  document.getElementById('chartsLabel').textContent = `顯示 ${grid.querySelectorAll('.chart-card').length} 檔`;
-  setStatus(`完成，共 ${done} 檔`, 'idle');
+  document.getElementById('chartsLabel').textContent=`顯示 ${grid.querySelectorAll('.chart-card').length} 檔`;
+  setStatus(`完成，共 ${done} 檔`,'idle');
 }
 
-document.getElementById('loadBtn').addEventListener('click', loadCharts);
-document.getElementById('clearBtn').addEventListener('click', () => {
-  document.getElementById('codeInput').value = '';
+document.getElementById('loadBtn').addEventListener('click',loadCharts);
+document.getElementById('clearBtn').addEventListener('click',()=>{
+  document.getElementById('codeInput').value='';
   Object.values(cardCharts).forEach(({chart})=>{try{chart.remove();}catch(e){}});
   Object.keys(cardCharts).forEach(k=>delete cardCharts[k]);
-  document.getElementById('chartsGrid').innerHTML = `
-    <div class="empty-hint">
-      <div class="icon">📈</div>
-      <p>在上方輸入股票代碼<br>點擊「載入 K 線」即可顯示 K 棒圖表</p>
-    </div>`;
+  document.getElementById('chartsGrid').innerHTML=`<div class="empty-hint"><div class="icon">📈</div><p>在上方輸入股票代碼<br>點擊「載入 K 線」即可顯示</p></div>`;
   setStatus('');
-  document.getElementById('chartsLabel').textContent = '';
+  document.getElementById('chartsLabel').textContent='';
 });
-
-document.getElementById('codeInput').addEventListener('keydown', e => {
-  if (e.key==='Enter' && (e.ctrlKey||e.metaKey)) loadCharts();
+document.getElementById('codeInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)) loadCharts();
 });
 </script>
 </body>

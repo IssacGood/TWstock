@@ -10,54 +10,94 @@
 :root{--bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--border:#252a3a;--accent:#00c896;--accent2:#4f8ef7;--gold:#f0b840;--text:#e8eaf0;--text2:#8892aa;--text3:#55607a;--up:#e84040;--down:#28a745;--radius:8px;--font:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
-.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
-.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px}
-.topbar-nav{display:flex;gap:2px}
+
+/* Topbar */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;position:sticky;top:0;z-index:100;gap:8px}
+.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px;justify-self:start}
+.topbar-nav{display:flex;gap:2px;justify-self:center}
 .topbar-nav a{color:var(--text2);text-decoration:none;font-size:13px;padding:4px 10px;border-radius:6px;white-space:nowrap;transition:all .15s}
 .topbar-nav a:hover{color:var(--text);background:var(--bg3)}
 .topbar-nav a.active{color:var(--accent);background:rgba(0,200,150,.1)}
+
 .container{max-width:1200px;margin:0 auto;padding:24px 16px}
-h1{font-size:20px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px}
-h1 span{font-size:14px;color:var(--text2);font-weight:400}
+h1{font-size:20px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+h1 span{font-size:13px;color:var(--text2);font-weight:400}
+.hint{font-size:12px;color:var(--text3);margin-bottom:20px;line-height:1.6}
 
 /* 總覽 */
-.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px}
-.summary-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
-.summary-label{font-size:11px;color:var(--text3);margin-bottom:4px}
-.summary-value{font-family:var(--mono);font-size:20px;font-weight:700}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:20px}
+.summary-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.summary-label{font-size:10px;color:var(--text3);margin-bottom:4px}
+.summary-value{font-family:var(--mono);font-size:18px;font-weight:700}
 
 /* 表格 */
 .table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{padding:10px 14px;text-align:left;font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap}
-td{padding:10px 14px;border-bottom:1px solid rgba(37,42,58,.5);vertical-align:middle}
+th{padding:9px 12px;text-align:left;font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--bg3)}
+td{padding:9px 12px;border-bottom:1px solid rgba(37,42,58,.5);vertical-align:middle}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:var(--bg3)}
-.sym{font-family:var(--mono);font-weight:600;color:var(--accent2)}
-.name{color:var(--text2);font-size:12px}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+.sym-btn{font-family:var(--mono);font-weight:600;color:var(--accent2);background:none;border:none;cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px;transition:all .15s}
+.sym-btn:hover{background:rgba(79,142,247,.15);color:var(--accent2)}
 .num{font-family:var(--mono)}
 .up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--text2)}
 
-input[type=number],input[type=date]{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;font-family:var(--mono);padding:4px 8px;width:110px;outline:none;transition:border-color .2s}
-input[type=number]:focus,input[type=date]:focus{border-color:var(--accent2)}
-input[type=number]::placeholder{color:var(--text3)}
+input[type=number],input[type=date],input[type=text]{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;font-family:var(--mono);padding:4px 8px;outline:none;transition:border-color .2s}
+input:focus{border-color:var(--accent2)}
+input::placeholder{color:var(--text3)}
 
 .btn{border:none;border-radius:5px;font-size:12px;font-family:var(--font);padding:5px 10px;cursor:pointer;transition:all .15s}
-.btn-del{background:rgba(232,64,64,.15);color:var(--up)}
-.btn-del:hover{background:rgba(232,64,64,.3)}
-.btn-save{background:rgba(0,200,150,.15);color:var(--accent)}
-.btn-save:hover{background:rgba(0,200,150,.3)}
-.btn-add{background:var(--accent);color:#0d0f14;font-weight:700;padding:8px 18px;font-size:14px}
-.btn-add:hover{opacity:.85}
+.btn-del{background:rgba(232,64,64,.12);color:var(--up)}.btn-del:hover{background:rgba(232,64,64,.25)}
+.btn-chart{background:rgba(79,142,247,.12);color:var(--accent2)}.btn-chart:hover{background:rgba(79,142,247,.25)}
+.btn-add{background:var(--accent);color:#0d0f14;font-weight:700;padding:8px 16px;font-size:13px}.btn-add:hover{opacity:.85}
+.btn-cnyes{background:rgba(240,184,64,.1);color:var(--gold);text-decoration:none;border-radius:5px;font-size:11px;padding:3px 8px;transition:all .15s;display:inline-flex;align-items:center}
+.btn-cnyes:hover{background:rgba(240,184,64,.2)}
 
-.add-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:16px;border-top:1px solid var(--border)}
-.add-row input{width:120px}
-.add-row input[placeholder="股票代碼"]{width:100px}
+.add-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:14px 12px;border-top:1px solid var(--border);background:var(--bg3)}
+.add-row input{width:100px}
+.add-row input[placeholder="代碼"]{width:80px;text-transform:uppercase}
 
-.empty-fav{text-align:center;padding:60px;color:var(--text3)}
-.empty-fav .icon{font-size:48px;margin-bottom:16px;opacity:.4}
+.empty-fav{text-align:center;padding:50px;color:var(--text3)}
+.empty-fav .icon{font-size:44px;margin-bottom:14px;opacity:.4}
 
-.profit-bar{height:4px;border-radius:2px;margin-top:3px}
+/* ── K線 Modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;backdrop-filter:blur(4px);justify-content:center;align-items:flex-start;padding:24px 16px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:960px;padding:20px;position:relative;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-close{position:absolute;top:12px;right:12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text2);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .15s}
+.modal-close:hover{color:var(--text);border-color:var(--text2)}
+.modal-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.modal-title-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.modal-symbol{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--accent2)}
+.modal-name{font-size:14px;color:var(--text)}
+.modal-group-tag{font-size:11px;color:var(--text3);border:1px solid var(--border);border-radius:4px;padding:1px 7px}
+.modal-price-row{text-align:right}
+.modal-price{font-family:var(--mono);font-size:22px;font-weight:700}
+.modal-chg{font-family:var(--mono);font-size:12px;margin-top:2px}
+.modal-links{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.modal-link{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--text2);text-decoration:none;border:1px solid var(--border);border-radius:5px;padding:3px 9px;transition:all .15s}
+.modal-link:hover{color:var(--gold);border-color:var(--gold)}
+.chart-controls{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.range-btn{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text3);font-size:11px;padding:3px 8px;cursor:pointer;transition:all .15s}
+.range-btn.active,.range-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+.chart-legend{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
+.legend-item{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--text2)}
+.legend-dot{width:16px;height:2px;border-radius:2px}
+.ohlcv-bar{font-family:var(--mono);font-size:11px;color:var(--text2);padding:3px 0;min-height:20px;display:flex;gap:10px;flex-wrap:wrap}
+.ohlcv-bar span{color:var(--text3)}
+.modal-chart{height:400px;border-radius:8px;overflow:hidden}
+.chart-loading{display:flex;align-items:center;justify-content:center;height:400px;color:var(--text2);gap:10px;background:var(--bg3);border-radius:8px}
+.spinner-sm{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.modal-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.stat-box{background:var(--bg3);border-radius:7px;padding:8px 12px}
+.stat-label{font-size:10px;color:var(--text3);margin-bottom:3px}
+.stat-value{font-family:var(--mono);font-size:13px;font-weight:600}
+.kbd-hint{font-size:11px;color:var(--text3);text-align:center;margin-top:8px}
+kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:768px){.modal-stats{grid-template-columns:repeat(2,1fr)};.add-row{flex-direction:column}}
 </style>
 </head>
 <body>
@@ -73,105 +113,176 @@ input[type=number]::placeholder{color:var(--text3)}
     <a href="ai.html">AI選股</a>
     <a href="fear.html">貪婪指數</a>
   </nav>
+  <div></div>
 </div>
 
 <div class="container">
-  <h1>⭐ 我的最愛 <span>庫存盈虧追蹤（資料儲存於本地）</span></h1>
+  <h1>⭐ 我的最愛 <span>庫存盈虧追蹤</span></h1>
+  <div class="hint">資料儲存於本地瀏覽器，不會上傳。點股票代碼可查看 K 線圖。</div>
 
-  <!-- 總覽 -->
   <div class="summary-grid" id="summaryGrid"></div>
 
-  <!-- 清單 -->
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th>代碼</th><th>名稱</th><th>現價</th><th>漲跌%</th>
+          <th>代碼</th><th>名稱</th><th>類股</th><th>現價</th><th>漲跌%</th>
           <th>買入價</th><th>買入日期</th><th>張數</th>
-          <th>成本</th><th>市值</th><th>損益</th><th>損益%</th><th>操作</th>
+          <th>成本</th><th>市值</th><th>損益</th><th>報酬率</th><th>操作</th>
         </tr>
       </thead>
       <tbody id="favTable"></tbody>
     </table>
     <div class="add-row">
-      <input type="text" id="addSymbol" placeholder="股票代碼" maxlength="8" style="text-transform:uppercase">
-      <input type="number" id="addBuyPrice" placeholder="買入價格" min="0" step="0.01">
-      <input type="date" id="addBuyDate">
-      <input type="number" id="addShares" placeholder="張數" min="1" step="1">
+      <input type="text" id="addSymbol" placeholder="代碼" maxlength="8">
+      <input type="number" id="addBuyPrice" placeholder="買入價" min="0" step="0.01" style="width:90px">
+      <input type="date" id="addBuyDate" style="width:130px">
+      <input type="number" id="addShares" placeholder="張數" min="1" style="width:72px">
       <button class="btn btn-add" onclick="addFav()">+ 加入最愛</button>
+      <span style="font-size:11px;color:var(--text3);margin-left:4px">代碼不含 .TW，例：2330</span>
     </div>
+  </div>
+</div>
+
+<!-- K線 Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-top">
+      <div>
+        <div class="modal-title-row">
+          <span class="modal-symbol" id="mSymbol"></span>
+          <span class="modal-name" id="mName"></span>
+          <span class="modal-group-tag" id="mGroup"></span>
+        </div>
+      </div>
+      <div class="modal-price-row">
+        <div class="modal-price" id="mPrice"></div>
+        <div class="modal-chg" id="mChg"></div>
+      </div>
+    </div>
+    <div class="modal-links" id="mLinks"></div>
+    <div class="chart-controls">
+      <button class="range-btn" data-range="50">近50根</button>
+      <button class="range-btn active" data-range="120">近6月</button>
+      <button class="range-btn" data-range="250">近1年</button>
+      <button class="range-btn" data-range="0">全部</button>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#f0b840"></div>MA5</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7"></div>MA20</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#b060f0"></div>MA60</div>
+        <div class="legend-item"><div class="legend-dot" style="border-top:1px dashed rgba(240,184,64,.5);width:16px;height:0"></div>BB</div>
+      </div>
+    </div>
+    <div class="ohlcv-bar" id="ohlcvBar"><span>移動滑鼠到 K 棒上顯示 開/高/低/收/量</span></div>
+    <div class="modal-chart" id="modalChart"><div class="chart-loading"><div class="spinner-sm"></div><span>載入中…</span></div></div>
+    <div class="modal-stats" id="modalStats"></div>
+    <div class="kbd-hint">鍵盤 <kbd>Esc</kbd> 關閉</div>
   </div>
 </div>
 
 <script>
 const STORAGE_KEY='tw_favorites';
-let stockData={};  // symbol -> {lc, chg}
-
-function getFavs(){ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }
-function saveFavs(f){ localStorage.setItem(STORAGE_KEY,JSON.stringify(f)); }
+let stockIndex={};
+const batchCache={};
+let modalChartObj=null;
 const codeOnly=s=>s.replace('.TWO','').replace('.TW','');
+const cnyesUrl=s=>`https://www.cnyes.com/twstock/${codeOnly(s)}`;
 
+// ── 指標計算 ─────────────────────────────
+function calcSMA(arr,n){return arr.map((_,i)=>i<n-1?null:arr.slice(i-n+1,i+1).reduce((a,b)=>a+b,0)/n);}
+function calcEMA(arr,n){const k=2/(n+1);let e=[];arr.forEach((v,i)=>{e.push(i===0?v:v*k+e[i-1]*(1-k));});return e;}
+function calcRSI(arr,n=14){const r=Array(arr.length).fill(null);for(let i=n;i<arr.length;i++){let g=0,l=0;for(let j=i-n+1;j<=i;j++){const d=arr[j]-arr[j-1];if(d>0)g+=d;else l-=d;}r[i]=l===0?100:100-100/(1+g/l);}return r;}
+function calcMACD(arr){const line=calcEMA(arr,12).map((v,i)=>v-calcEMA(arr,26)[i]);return{line,sig:calcEMA(line,9)};}
+function calcBB(arr,n=20){return arr.map((_,i)=>{if(i<n-1)return{u:null,l:null};const sl=arr.slice(i-n+1,i+1),mean=sl.reduce((a,b)=>a+b,0)/n,std=Math.sqrt(sl.reduce((a,b)=>a+(b-mean)**2,0)/n);return{u:mean+2*std,l:mean-2*std};});}
+
+async function loadBatch(batchId){
+  if(batchCache[batchId]) return batchCache[batchId];
+  try{
+    const res=await fetch(`data/stocks_${batchId}.json?t=`+Date.now());
+    const d=await res.json();
+    const map=new Map();
+    for(const s of(d.stocks||[])) map.set(s.symbol,s.candles||[]);
+    batchCache[batchId]=map;
+    return map;
+  }catch(e){return new Map();}
+}
+
+// ── 載入股價資料 ─────────────────────────
 async function loadPrices(){
   try{
     const res=await fetch('data/stocks.json?t='+Date.now());
     const d=await res.json();
-    (d.stocks||[]).forEach(s=>{ stockData[s.symbol]=s; });
+    (d.stocks||[]).forEach(s=>{ stockIndex[s.symbol]=s; });
   }catch(e){}
   render();
 }
 
-function findStock(symbol){
-  // 嘗試 .TW 和 .TWO
-  return stockData[symbol]||stockData[symbol+'.TW']||stockData[symbol+'.TWO']||null;
+function findStock(code){
+  const sym=code.includes('.')?code:code+'.TW';
+  return stockIndex[sym]||stockIndex[code+'.TWO']||null;
 }
 
+// ── localStorage ─────────────────────────
+function getFavs(){ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }
+function saveFavs(f){ localStorage.setItem(STORAGE_KEY,JSON.stringify(f)); }
+
+// ── 渲染表格 ─────────────────────────────
 function render(){
   const favs=getFavs();
   const tbody=document.getElementById('favTable');
 
   if(!favs.length){
-    tbody.innerHTML=`<tr><td colspan="12"><div class="empty-fav"><div class="icon">⭐</div><p>還沒有最愛股票<br>從選股頁面點 K 線圖，按「加入最愛」</p></div></td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="13"><div class="empty-fav">
+      <div class="icon">⭐</div>
+      <p>還沒有最愛股票<br>從選股頁面點 K 線圖後，按「加入最愛」<br>或在下方直接輸入代碼</p>
+    </div></td></tr>`;
     document.getElementById('summaryGrid').innerHTML='';
     return;
   }
 
-  let totalCost=0,totalValue=0,totalPnl=0;
+  let totalCost=0,totalValue=0,totalPnl=0,holdCount=0;
   let rows='';
 
   favs.forEach((fav,i)=>{
     const s=findStock(fav.symbol);
-    const cur=s?.lc??null;
-    const chg=s?.chg??null;
+    const cur=s?.lc??null, chg=s?.chg??null;
     const chgCls=chg>0?'up':chg<0?'down':'flat';
     const chgStr=chg!=null?(chg>0?'+':'')+chg.toFixed(2)+'%':'-';
+    const group=s?.group||'';
 
     const bp=parseFloat(fav.buyPrice)||0;
-    const shares=parseInt(fav.shares)||0;
-    const cost=bp*shares*1000;
-    const value=cur!=null?cur*shares*1000:null;
-    const pnl=value!=null?value-cost:null;
+    const sh=parseInt(fav.shares)||0;
+    const cost=bp*sh*1000;
+    const value=cur!=null?cur*sh*1000:null;
+    const pnl=value!=null&&cost>0?value-cost:null;
     const pnlPct=cost>0&&pnl!=null?pnl/cost*100:null;
     const pnlCls=pnl>0?'up':pnl<0?'down':'flat';
     const sign=pnl>0?'+':'';
 
-    if(cost>0) totalCost+=cost;
+    if(cost>0){totalCost+=cost;holdCount++;}
     if(value!=null) totalValue+=value;
     if(pnl!=null) totalPnl+=pnl;
 
     const code=codeOnly(fav.symbol);
     rows+=`<tr>
-      <td><a class="sym" href="index.html" style="text-decoration:none">${code}</a></td>
-      <td><div class="name">${fav.name||''}</div></td>
+      <td><button class="sym-btn" onclick="openModal('${fav.symbol}')">${code}</button></td>
+      <td style="color:var(--text2);font-size:12px">${fav.name||s?.name||''}</td>
+      <td style="font-size:11px;color:var(--text3)">${group}</td>
       <td class="num ${chgCls}">${cur??'-'}</td>
       <td class="num ${chgCls}">${chgStr}</td>
-      <td><input type="number" value="${fav.buyPrice||''}" placeholder="買入價" min="0" step="0.01" onchange="updateField(${i},'buyPrice',this.value)" style="width:90px"></td>
-      <td><input type="date" value="${fav.buyDate||''}" onchange="updateField(${i},'buyDate',this.value)" style="width:130px"></td>
-      <td><input type="number" value="${fav.shares||''}" placeholder="張數" min="1" onchange="updateField(${i},'shares',this.value)" style="width:70px"></td>
+      <td><input type="number" value="${fav.buyPrice||''}" placeholder="買入價" min="0" step="0.01" onchange="updateField(${i},'buyPrice',this.value)" style="width:80px"></td>
+      <td><input type="date" value="${fav.buyDate||''}" onchange="updateField(${i},'buyDate',this.value)" style="width:125px"></td>
+      <td><input type="number" value="${fav.shares||''}" placeholder="張數" min="1" onchange="updateField(${i},'shares',this.value)" style="width:64px"></td>
       <td class="num">${cost>0?'$'+(cost/10000).toFixed(1)+'萬':'-'}</td>
       <td class="num">${value!=null?'$'+(value/10000).toFixed(1)+'萬':'-'}</td>
       <td class="num ${pnlCls}">${pnl!=null?sign+'$'+(Math.abs(pnl)/10000).toFixed(1)+'萬':'-'}</td>
       <td class="num ${pnlCls}">${pnlPct!=null?(pnlPct>0?'+':'')+pnlPct.toFixed(1)+'%':'-'}</td>
-      <td><button class="btn btn-del" onclick="removeFav(${i})">移除</button></td>
+      <td style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-chart" onclick="openModal('${fav.symbol}')">📊 K線</button>
+        <a class="btn-cnyes" href="${cnyesUrl(fav.symbol)}" target="_blank" rel="noopener">📰</a>
+        <button class="btn btn-del" onclick="removeFav(${i})">移除</button>
+      </td>
     </tr>`;
   });
   tbody.innerHTML=rows;
@@ -180,43 +291,171 @@ function render(){
   const pnlPct=totalCost>0?totalPnl/totalCost*100:0;
   const pnlCls=totalPnl>0?'up':totalPnl<0?'down':'flat';
   document.getElementById('summaryGrid').innerHTML=`
-    <div class="summary-box"><div class="summary-label">持倉檔數</div><div class="summary-value" style="color:var(--accent2)">${favs.filter(f=>f.shares).length}</div></div>
+    <div class="summary-box"><div class="summary-label">追蹤檔數</div><div class="summary-value" style="color:var(--accent2)">${favs.length}</div></div>
+    <div class="summary-box"><div class="summary-label">持倉檔數</div><div class="summary-value" style="color:var(--accent2)">${holdCount}</div></div>
     <div class="summary-box"><div class="summary-label">總成本</div><div class="summary-value">$${(totalCost/10000).toFixed(1)}萬</div></div>
     <div class="summary-box"><div class="summary-label">總市值</div><div class="summary-value">$${(totalValue/10000).toFixed(1)}萬</div></div>
     <div class="summary-box"><div class="summary-label">總損益</div><div class="summary-value ${pnlCls}">${totalPnl>=0?'+':''}$${(Math.abs(totalPnl)/10000).toFixed(1)}萬</div></div>
     <div class="summary-box"><div class="summary-label">總報酬率</div><div class="summary-value ${pnlCls}">${pnlPct>=0?'+':''}${pnlPct.toFixed(1)}%</div></div>`;
 }
 
-function updateField(i,field,val){
-  const favs=getFavs(); favs[i][field]=val; saveFavs(favs); render();
-}
-function removeFav(i){
-  const favs=getFavs(); favs.splice(i,1); saveFavs(favs); render();
-}
+function updateField(i,field,val){const favs=getFavs();favs[i][field]=val;saveFavs(favs);render();}
+function removeFav(i){if(!confirm('確定移除？'))return;const favs=getFavs();favs.splice(i,1);saveFavs(favs);render();}
 
 function addFav(){
-  let sym=document.getElementById('addSymbol').value.trim().toUpperCase();
-  if(!sym) return alert('請輸入股票代碼');
-  if(!sym.includes('.')) sym=sym+'.TW';
+  let code=document.getElementById('addSymbol').value.trim().toUpperCase();
+  if(!code) return alert('請輸入股票代碼');
+  const sym=code.includes('.')?code:code+'.TW';
   const favs=getFavs();
-  if(favs.find(f=>f.symbol===sym)) return alert('已在清單中');
-  const s=findStock(sym);
-  favs.push({symbol:sym,name:s?.name||sym,
+  if(favs.find(f=>codeOnly(f.symbol)===code)) return alert('已在清單中');
+  const s=findStock(code);
+  favs.push({
+    symbol:sym, name:s?.name||'',
     buyPrice:document.getElementById('addBuyPrice').value||null,
     buyDate:document.getElementById('addBuyDate').value||null,
-    shares:document.getElementById('addShares').value||null});
+    shares:document.getElementById('addShares').value||null,
+  });
   saveFavs(favs);
   ['addSymbol','addBuyPrice','addBuyDate','addShares'].forEach(id=>document.getElementById(id).value='');
   render();
 }
 
-// 從 URL hash 自動加入
+// ── K線 Modal ────────────────────────────
+let currentModalSym=null;
+
+async function openModal(symbol){
+  currentModalSym=symbol;
+  const s=findStock(codeOnly(symbol));
+  const code=codeOnly(symbol);
+  const pct=s?.chg, cls=pct>0?'up':pct<0?'down':'flat', sign=pct>0?'+':'';
+
+  document.getElementById('mSymbol').textContent=code;
+  document.getElementById('mName').textContent=s?.name||'';
+  document.getElementById('mGroup').textContent=s?.group||'';
+  document.getElementById('mPrice').className='modal-price '+cls;
+  document.getElementById('mPrice').textContent=s?.lc??'-';
+  document.getElementById('mChg').className='modal-chg '+cls;
+  document.getElementById('mChg').textContent=`${sign}${pct!=null?pct.toFixed(2)+'%':'-'}`;
+  document.getElementById('mLinks').innerHTML=`
+    <a class="modal-link" href="${cnyesUrl(symbol)}" target="_blank" rel="noopener">📰 鉅亨行情</a>
+    <a class="modal-link" href="https://www.cnyes.com/twstock/${code}/news" target="_blank" rel="noopener">📰 新聞</a>
+    <a class="modal-link" href="index.html?q=${code}" target="_blank">🔍 選股篩選</a>`;
+  document.querySelectorAll('.range-btn').forEach(b=>b.classList.toggle('active',b.dataset.range==='120'));
+  document.getElementById('modalStats').innerHTML='';
+  document.getElementById('ohlcvBar').innerHTML='<span>移動滑鼠到 K 棒上</span>';
+  document.getElementById('modalChart').innerHTML='<div class="chart-loading"><div class="spinner-sm"></div><span>載入 K 線資料…</span></div>';
+  document.getElementById('modalOverlay').classList.add('open');
+
+  try{
+    const batch=s?.batch||'A';
+    const map=await loadBatch(batch);
+    const raw=map.get(symbol)||map.get(symbol+'.TW')||map.get(symbol+'.TWO')||[];
+    if(s) s._rawCandles=raw;
+    await buildChart(raw, 120, s);
+  }catch(e){
+    document.getElementById('modalChart').innerHTML='<div class="chart-loading" style="color:#e84040">⚠ K線載入失敗</div>';
+  }
+}
+
+async function buildChart(raw, range, meta){
+  if(!raw?.length){document.getElementById('modalChart').innerHTML='<div class="chart-loading" style="color:var(--text3)">無 K 線資料</div>';return;}
+  let c=raw; if(range>0) c=c.slice(-range);
+  const cl=c.map(x=>x[4]);
+  const ma5=calcSMA(cl,5),ma20=calcSMA(cl,20),ma60=calcSMA(cl,60);
+  const rsi14=calcRSI(cl,14);
+  const{line:macdLine}=calcMACD(cl);
+  const bb=calcBB(cl,20);
+
+  const el=document.getElementById('modalChart'); el.innerHTML='';
+  if(modalChartObj){try{modalChartObj.remove();}catch(e){}}
+
+  modalChartObj=LightweightCharts.createChart(el,{
+    width:el.clientWidth||900, height:400,
+    layout:{background:{color:'#141720'},textColor:'#8892aa'},
+    grid:{vertLines:{color:'#1c2030'},horzLines:{color:'#1c2030'}},
+    rightPriceScale:{visible:false},
+    leftPriceScale:{visible:true,borderColor:'#252a3a'},
+    timeScale:{borderColor:'#252a3a',timeVisible:true,rightOffset:3},
+    crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
+  });
+
+  const cs=modalChartObj.addCandlestickSeries({upColor:'#e84040',downColor:'#28a745',borderUpColor:'#e84040',borderDownColor:'#28a745',wickUpColor:'#e84040',wickDownColor:'#28a745',priceScaleId:'left'});
+  cs.setData(c.map(x=>({time:x[0],open:x[1],high:x[2],low:x[3],close:x[4]})));
+
+  // 買入價水平線
+  const fav=getFavs().find(f=>codeOnly(f.symbol)===codeOnly(currentModalSym||''));
+  if(fav?.buyPrice){
+    const bp=parseFloat(fav.buyPrice);
+    if(bp>0){
+      const buyLine=modalChartObj.addLineSeries({color:'rgba(240,184,64,.8)',lineWidth:1,lineStyle:1,title:'買入價',priceScaleId:'left'});
+      buyLine.setData(c.map(x=>({time:x[0],value:bp})));
+    }
+  }
+
+  // OHLCV tooltip
+  modalChartObj.subscribeCrosshairMove(p=>{
+    if(!p.time){document.getElementById('ohlcvBar').innerHTML='<span>移動滑鼠到 K 棒上</span>';return;}
+    const d=p.seriesData?.get(cs); if(!d) return;
+    const vi=c.findIndex(x=>x[0]===p.time); const vol=vi>=0?c[vi][5]:'-';
+    const oc=d.close>=d.open?'up':'down';
+    document.getElementById('ohlcvBar').innerHTML=
+      `<span>${p.time}</span>
+       <span>開 <b class="${oc}">${d.open}</b></span>
+       <span>高 <b style="color:var(--up)">${d.high}</b></span>
+       <span>低 <b style="color:var(--down)">${d.low}</b></span>
+       <span>收 <b class="${oc}">${d.close}</b></span>
+       <span>量 ${typeof vol==='number'?vol.toLocaleString():vol}</span>`;
+  });
+
+  const addL=(color,data,title,style=0)=>{const s=modalChartObj.addLineSeries({color,lineWidth:1,title,lineStyle:style,priceScaleId:'left'});s.setData(data.filter(d=>d.value!=null));};
+  addL('#f0b840',c.map((x,i)=>({time:x[0],value:ma5[i]})),'MA5');
+  addL('#4f8ef7',c.map((x,i)=>({time:x[0],value:ma20[i]})),'MA20');
+  addL('#b060f0',c.map((x,i)=>({time:x[0],value:ma60[i]})),'MA60');
+  addL('rgba(240,184,64,.35)',c.map((x,i)=>({time:x[0],value:bb[i].u})),'BB上',2);
+  addL('rgba(240,184,64,.35)',c.map((x,i)=>({time:x[0],value:bb[i].l})),'BB下',2);
+  modalChartObj.timeScale().fitContent();
+
+  const lc=cl[cl.length-1],lr=rsi14[rsi14.length-1],lm=macdLine[macdLine.length-1];
+  const lma20=ma20[ma20.length-1],lma60=ma60[ma60.length-1],lbb=bb[bb.length-1];
+  const pct=meta?.chg,sign=pct>0?'+':'',cls=pct>0?'up':pct<0?'down':'flat';
+  document.getElementById('modalStats').innerHTML=`
+    <div class="stat-box"><div class="stat-label">收盤價</div><div class="stat-value ${cls}">${lc?.toFixed(2)??'-'}</div></div>
+    <div class="stat-box"><div class="stat-label">漲跌幅</div><div class="stat-value ${cls}">${sign}${pct!=null?pct.toFixed(2)+'%':'-'}</div></div>
+    <div class="stat-box"><div class="stat-label">RSI(14)</div><div class="stat-value">${lr!=null?lr.toFixed(1):'-'}</div></div>
+    <div class="stat-box"><div class="stat-label">MACD</div><div class="stat-value">${lm!=null?lm.toFixed(3):'-'}</div></div>
+    <div class="stat-box"><div class="stat-label">MA20</div><div class="stat-value">${lma20!=null?lma20.toFixed(2):'-'}</div></div>
+    <div class="stat-box"><div class="stat-label">MA60</div><div class="stat-value">${lma60!=null?lma60.toFixed(2):'-'}</div></div>
+    <div class="stat-box"><div class="stat-label">布林上軌</div><div class="stat-value">${lbb.u!=null?lbb.u.toFixed(2):'-'}</div></div>
+    <div class="stat-box"><div class="stat-label">布林下軌</div><div class="stat-value">${lbb.l!=null?lbb.l.toFixed(2):'-'}</div></div>`;
+
+  if(meta) meta._rawCandles=raw;
+}
+
+// Range 切換
+document.querySelector('.chart-controls').addEventListener('click',async e=>{
+  const btn=e.target.closest('.range-btn'); if(!btn) return;
+  document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const s=currentModalSym?findStock(codeOnly(currentModalSym)):null;
+  if(s?._rawCandles) await buildChart(s._rawCandles,parseInt(btn.dataset.range),s);
+});
+document.getElementById('modalClose').addEventListener('click',()=>document.getElementById('modalOverlay').classList.remove('open'));
+document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('modalOverlay').classList.remove('open');});
+
+// URL hash 自動加入
 const hash=location.hash;
 if(hash.startsWith('#add=')){
-  const sym=hash.slice(5);
-  document.getElementById('addSymbol').value=codeOnly(sym);
+  const parts=hash.slice(5).split(',');
+  document.getElementById('addSymbol').value=parts[0]||'';
+  if(parts[1]) document.getElementById('addBuyPrice').value=parts[1];
   history.replaceState(null,'',location.pathname);
 }
+
+// Enter 快速加入
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.activeElement?.id==='addSymbol') addFav();
+});
 
 loadPrices();
 </script>
