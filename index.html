@@ -106,9 +106,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .modal-overlay.open{display:flex}
 .modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:980px;padding:20px;position:relative;animation:fadeUp .2s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.modal-close{position:absolute;top:12px;right:12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text2);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .15s}
+/* ★ X 按鈕改為 modal-top 最右側，不再 absolute 蓋住股價 */
+.modal-close{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text2);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .15s;flex-shrink:0;align-self:flex-start}
 .modal-close:hover{color:var(--text);border-color:var(--text2)}
-.modal-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+/* modal-top：左邊標題、中間股價、右邊 X */
+.modal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
 .modal-title-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .modal-symbol{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--accent2)}
 .modal-name{font-size:14px;color:var(--text)}
@@ -288,7 +290,6 @@ kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;paddi
 <!-- Modal -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <button class="modal-close" id="modalClose">✕</button>
     <div class="modal-top">
       <div>
         <div class="modal-title-row">
@@ -301,6 +302,7 @@ kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;paddi
         <div class="modal-price" id="mPrice"></div>
         <div class="modal-chg" id="mChg"></div>
       </div>
+      <button class="modal-close" id="modalClose">✕</button>
     </div>
     <div class="modal-links" id="mLinks">
       <div class="nav-arrows">
