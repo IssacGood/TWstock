@@ -8,44 +8,44 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
 :root{--bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--border:#252a3a;--accent:#00c896;--accent2:#4f8ef7;--text:#e8eaf0;--text2:#8892aa;--text3:#55607a;--font:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font)}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
 .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;position:sticky;top:0;z-index:100;gap:8px}
 .topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px;justify-self:start}
 .topbar-nav{display:flex;gap:2px;justify-self:center;flex-wrap:nowrap;overflow-x:auto}
 .topbar-nav a{color:var(--text2);text-decoration:none;font-size:13px;padding:4px 10px;border-radius:6px;white-space:nowrap;transition:all .15s}
 .topbar-nav a:hover{color:var(--text);background:var(--bg3)}
 .topbar-nav a.active{color:var(--accent);background:rgba(0,200,150,.1)}
-
 .container{padding:16px;max-width:1500px;margin:0 auto}
 
-/* 標的選擇列 */
+/* 標的切換 */
 .symbol-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
-.stab{background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:13px;padding:7px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
+.stab{background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:13px;padding:6px 14px;cursor:pointer;transition:all .15s;white-space:nowrap}
 .stab:hover{border-color:var(--accent2);color:var(--accent2)}
 .stab.active{background:rgba(0,200,150,.1);border-color:var(--accent);color:var(--accent)}
 
-/* 主圖 + 副圖 grid */
-.chart-layout{display:grid;grid-template-columns:1fr 340px;gap:12px;height:calc(100vh - 160px);min-height:500px}
-.chart-main{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+/* 主圖 + 側圖佈局 */
+.chart-layout{display:grid;grid-template-columns:1fr 320px;gap:12px}
+.chart-main{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
 .chart-side{display:flex;flex-direction:column;gap:10px}
-.chart-side-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;flex:1;display:flex;flex-direction:column}
+.side-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.card-label{padding:8px 14px;font-size:12px;font-weight:600;border-bottom:1px solid var(--border);color:var(--text2);display:flex;align-items:center;justify-content:space-between}
+.card-label a{font-size:10px;color:var(--accent2);text-decoration:none}
+.card-label a:hover{text-decoration:underline}
 
-.chart-label{padding:9px 14px;font-size:13px;font-weight:600;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;flex-shrink:0}
-.chart-label span{font-size:11px;color:var(--text3);font-family:var(--mono);margin-left:auto}
+/* TradingView widget 容器 */
+.tv-container{position:relative;width:100%}
+.tv-container-main{height:calc(100vh - 200px);min-height:480px}
+.tv-container-side{height:200px}
 
-/* TradingView iframe 容器 */
-.tv-wrap{flex:1;position:relative}
-.tv-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
-
-/* 全螢幕模式 */
-.expand-btn{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text2);font-size:11px;padding:2px 7px;cursor:pointer;transition:all .15s;margin-left:6px}
-.expand-btn:hover{color:var(--accent);border-color:var(--accent)}
+/* 用 .tradingview-widget-container 類別讓官方 script 正常掛載 */
+.tradingview-widget-container{width:100%;height:100%}
+.tradingview-widget-container__widget{width:100%;height:100%}
 
 @media(max-width:900px){
-  .chart-layout{grid-template-columns:1fr;height:auto}
-  .chart-main{height:60vw;min-height:300px}
-  .chart-side{flex-direction:row}
-  .chart-side-item{min-height:200px}
+  .chart-layout{grid-template-columns:1fr}
+  .tv-container-main{height:60vw;min-height:320px}
+  .chart-side{flex-direction:row;flex-wrap:wrap}
+  .side-card{flex:1;min-width:200px}
 }
 </style>
 </head>
@@ -67,110 +67,126 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 </div>
 
 <div class="container">
-  <!-- 標的切換 -->
-  <div class="symbol-tabs">
-    <button class="stab active" data-sym="TWSE:TAIEX" data-name="加權指數" onclick="switchMain(this)">📈 加權指數</button>
-    <button class="stab" data-sym="TAIFEX:TX1!" data-name="台指期近月" onclick="switchMain(this)">🔮 台指期</button>
-    <button class="stab" data-sym="TAIFEX:MTX1!" data-name="小台指期" onclick="switchMain(this)">🔮 小台指</button>
-    <button class="stab" data-sym="TWSE:OTCINDEX" data-name="上櫃指數" onclick="switchMain(this)">📊 上櫃指數</button>
-    <button class="stab" data-sym="TVC:HSI" data-name="恆生指數" onclick="switchMain(this)">🇭🇰 恆生</button>
-    <button class="stab" data-sym="SP:SPX" data-name="S&amp;P500" onclick="switchMain(this)">🇺🇸 S&amp;P500</button>
-    <button class="stab" data-sym="NASDAQ:NDX" data-name="Nasdaq100" onclick="switchMain(this)">🇺🇸 Nasdaq</button>
+  <!-- 標的切換按鈕 -->
+  <div class="symbol-tabs" id="symbolTabs">
+    <button class="stab active" data-sym="TWSE:TAIEX">📈 加權指數</button>
+    <button class="stab" data-sym="TAIFEX:TX1!">🔮 台指期</button>
+    <button class="stab" data-sym="TAIFEX:MTX1!">🔮 小台指</button>
+    <button class="stab" data-sym="TWSE:OTCINDEX">📊 上櫃指數</button>
+    <button class="stab" data-sym="TVC:HSI">🇭🇰 恆生</button>
+    <button class="stab" data-sym="SP:SPX">🇺🇸 S&amp;P500</button>
+    <button class="stab" data-sym="NASDAQ:NDX">🇺🇸 Nasdaq</button>
+    <button class="stab" data-sym="COMEX:GC1!">🪙 黃金</button>
   </div>
 
   <div class="chart-layout">
     <!-- 主圖 -->
     <div class="chart-main">
-      <div class="chart-label">
-        <span id="mainLabel">📈 加權指數 (TAIEX)</span>
-        <a id="tvLink" href="https://tw.tradingview.com/chart/?symbol=TWSE:TAIEX" target="_blank" class="expand-btn">TradingView ↗</a>
+      <div class="tv-container tv-container-main" id="mainChartWrap">
+        <!-- 由 JS 動態注入 TradingView widget script -->
       </div>
-      <div class="tv-wrap" id="mainChart"></div>
     </div>
 
-    <!-- 側邊三個小圖 -->
+    <!-- 側邊三個小圖（固定） -->
     <div class="chart-side">
-      <div class="chart-side-item">
-        <div class="chart-label">🔮 台指期近月 <span>TX1!</span></div>
-        <div class="tv-wrap" id="sideChart1"></div>
+      <div class="side-card">
+        <div class="card-label">
+          🔮 台指期近月
+          <a href="https://tw.tradingview.com/chart/?symbol=TAIFEX:TX1!" target="_blank" rel="noopener">↗ TV</a>
+        </div>
+        <div class="tv-container tv-container-side" id="side1"></div>
       </div>
-      <div class="chart-side-item">
-        <div class="chart-label">🔮 小台指期 <span>MTX1!</span></div>
-        <div class="tv-wrap" id="sideChart2"></div>
+      <div class="side-card">
+        <div class="card-label">
+          🔮 小台指期
+          <a href="https://tw.tradingview.com/chart/?symbol=TAIFEX:MTX1!" target="_blank" rel="noopener">↗ TV</a>
+        </div>
+        <div class="tv-container tv-container-side" id="side2"></div>
       </div>
-      <div class="chart-side-item">
-        <div class="chart-label">📊 上櫃指數 <span>OTCINDEX</span></div>
-        <div class="tv-wrap" id="sideChart3"></div>
+      <div class="side-card">
+        <div class="card-label">
+          📊 上櫃指數
+          <a href="https://tw.tradingview.com/chart/?symbol=TWSE:OTCINDEX" target="_blank" rel="noopener">↗ TV</a>
+        </div>
+        <div class="tv-container tv-container-side" id="side3"></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-// TradingView Advanced Chart Widget URL 產生器
-function tvUrl(symbol, {height=500, interval='D', mini=false}={}){
-  const params = new URLSearchParams({
+// TradingView 官方 Widget 設定
+// 參考：https://www.tradingview.com/widget/advanced-chart/
+
+const COMMON_CONFIG = {
+  autosize: true,
+  interval: "D",
+  timezone: "Asia/Taipei",
+  theme: "dark",
+  style: "1",
+  locale: "zh_TW",
+  backgroundColor: "rgba(20, 23, 32, 1)",
+  gridColor: "rgba(28, 32, 48, 1)",
+  allow_symbol_change: false,
+  calendar: false,
+  support_host: "https://www.tradingview.com"
+};
+
+function createWidget(containerId, symbol, isMini=false){
+  const wrap = document.getElementById(containerId);
+  if(!wrap) return;
+  wrap.innerHTML = '';
+
+  // TradingView 官方做法：建立 .tradingview-widget-container div + script
+  const outer = document.createElement('div');
+  outer.className = 'tradingview-widget-container';
+  outer.style.cssText = 'width:100%;height:100%';
+
+  const inner = document.createElement('div');
+  inner.className = 'tradingview-widget-container__widget';
+  inner.style.cssText = 'width:100%;height:100%';
+  outer.appendChild(inner);
+
+  const cfg = {
+    ...COMMON_CONFIG,
     symbol,
-    interval,
-    timezone: 'Asia/Taipei',
-    theme: 'dark',
-    style: '1',
-    locale: 'zh_TW',
-    backgroundColor: '#141720',
-    gridColor: '#1c2030',
-    hide_top_toolbar: mini ? '1' : '0',
-    hide_legend: mini ? '1' : '0',
-    hide_side_toolbar: mini ? '1' : '0',
-    allow_symbol_change: '0',
-    save_image: '0',
-    calendar: '0',
-    support_host: 'https://www.tradingview.com',
-    autosize: '1',
-  });
-  return `https://www.tradingview.com/widgetbar-chart/?${params}`;
+    hide_top_toolbar: isMini,
+    hide_legend: isMini,
+    hide_side_toolbar: isMini,
+    withdateranges: !isMini,
+    details: !isMini,
+    hotlist: false,
+    news: [],
+  };
+
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.async = true;
+  script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  script.textContent = JSON.stringify(cfg);
+  outer.appendChild(script);
+
+  wrap.appendChild(outer);
 }
 
-function makeIframe(src){
-  const f = document.createElement('iframe');
-  f.src = src;
-  f.setAttribute('allowtransparency','true');
-  f.setAttribute('frameborder','0');
-  f.setAttribute('scrolling','no');
-  f.setAttribute('allowfullscreen','');
-  f.setAttribute('loading','lazy');
-  return f;
-}
+// 主圖目前顯示的 symbol
+let currentMain = 'TWSE:TAIEX';
 
-// 建立主圖
-function buildMain(symbol){
-  const el = document.getElementById('mainChart');
-  el.innerHTML = '';
-  el.appendChild(makeIframe(tvUrl(symbol, {mini:false})));
-}
-
-// 建立側邊小圖
-function buildSide(elId, symbol){
-  const el = document.getElementById(elId);
-  el.innerHTML = '';
-  el.appendChild(makeIframe(tvUrl(symbol, {mini:true})));
-}
-
-// 切換主圖標的
-function switchMain(btn){
+// 切換主圖
+document.getElementById('symbolTabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.stab');
+  if(!btn) return;
   document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const sym  = btn.dataset.sym;
-  const name = btn.dataset.name;
-  document.getElementById('mainLabel').textContent = `${btn.textContent.trim()} (${sym.split(':')[1]})`;
-  document.getElementById('tvLink').href = `https://tw.tradingview.com/chart/?symbol=${sym}`;
-  buildMain(sym);
-}
+  currentMain = btn.dataset.sym;
+  createWidget('mainChartWrap', currentMain, false);
+});
 
-// 初始化
-buildMain('TWSE:TAIEX');
-buildSide('sideChart1', 'TAIFEX:TX1!');
-buildSide('sideChart2', 'TAIFEX:MTX1!');
-buildSide('sideChart3', 'TWSE:OTCINDEX');
+// 初始化所有圖
+createWidget('mainChartWrap', 'TWSE:TAIEX',    false);
+createWidget('side1',         'TAIFEX:TX1!',    true);
+createWidget('side2',         'TAIFEX:MTX1!',   true);
+createWidget('side3',         'TWSE:OTCINDEX',  true);
 </script>
 </body>
 </html>

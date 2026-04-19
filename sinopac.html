@@ -223,12 +223,16 @@ function generateScript(simulation=false){
 執行方式：python fetch_sinopac.py
 輸出：data/sinopac_quotes.json
 
-安裝：pip install shioaji
+安裝：pip install shioaji twstock
+說明：
+  - 可抓全部上市(TSE) + 上櫃(OTC) 約 1900+ 檔
+  - 使用 snapshots() 批次查詢，速度快
+  - 模擬模式下部分股票可能無報價
 """
 
 import shioaji as sj
-import json, os
-from datetime import datetime, date, timedelta
+import json, os, time
+from datetime import datetime
 import twstock
 
 # ── 設定 ──────────────────────────────────────
@@ -240,12 +244,16 @@ PERSON_ID  = "${personId}"` : ''}
 SIMULATION = ${simulation ? 'True' : 'False'}
 
 OUTPUT_PATH = "data/sinopac_quotes.json"
+BATCH_SIZE  = 50   # 每批 snapshots 查詢數量
 
 def get_all_symbols():
-    """取得全部台股代碼（只取上市）"""
+    """取得全部台股代碼（上市 + 上櫃）"""
     codes = twstock.codes
-    return [k for k, v in codes.items()
-            if v.market == "上市" and v.type == "股票"]
+    tse = [(k, 'TSE') for k, v in codes.items()
+           if v.market == "上市" and v.type == "股票"]
+    otc = [(k, 'OTC') for k, v in codes.items()
+           if v.market == "上櫃" and v.type == "股票"]
+    return tse + otc
 
 def main():
     os.makedirs("data", exist_ok=True)
@@ -254,13 +262,9 @@ def main():
     api = sj.Shioaji(simulation=SIMULATION)
 
     try:
-        # 登入
-${simulation ? `        accounts = api.login(API_KEY, SECRET_KEY)` :
-`        accounts = api.login(
-            API_KEY, SECRET_KEY,
-            fetch_contract=True,
-        )
-        # 啟動憑證（正式帳號需要）
+${simulation ?
+`        accounts = api.login(API_KEY, SECRET_KEY)` :
+`        accounts = api.login(API_KEY, SECRET_KEY, fetch_contract=True)
         api.activate_ca(
             ca_path=CA_PATH,
             ca_passwd=CA_PASSWD,
@@ -271,49 +275,62 @@ ${simulation ? `        accounts = api.login(API_KEY, SECRET_KEY)` :
         print(f"登入失敗：{e}")
         return
 
-    symbols = get_all_symbols()
-    print(f"準備抓取 {len(symbols)} 檔報價...")
+    all_symbols = get_all_symbols()
+    print(f"準備抓取 {len(all_symbols)} 檔（TSE + OTC）...")
 
     results = {}
     failed  = []
 
-    for i, code in enumerate(symbols):
+    # 分批取得合約
+    contracts = []
+    for code, market in all_symbols:
         try:
-            # Shioaji 合約格式
-            contract = api.Contracts.Stocks.TSE.get(code) or \\
-                       api.Contracts.Stocks.OTC.get(code)
-            if not contract:
+            c = getattr(api.Contracts.Stocks, market).get(code)
+            if c:
+                contracts.append((code, market, c))
+            else:
                 failed.append(code)
-                continue
-
-            # 快照（即時報價）
-            snap = api.snapshots([contract])
-            if not snap:
-                failed.append(code)
-                continue
-
-            q = snap[0]
-            results[code + ".TW"] = {
-                "code":      code,
-                "close":     q.close,
-                "open":      q.open,
-                "high":      q.high,
-                "low":       q.low,
-                "volume":    q.volume,        # 成交量（張）
-                "amount":    q.amount,        # 成交金額
-                "change":    q.change_price,  # 漲跌價
-                "pct":       round(q.change_rate, 2) if q.change_rate else None,
-                "bid":       q.buy_price,
-                "ask":       q.sell_price,
-                "total_vol": q.total_volume,
-                "ts":        str(q.ts),
-            }
-
-            if (i+1) % 100 == 0:
-                print(f"  進度：{i+1}/{len(symbols)}")
-
-        except Exception as e:
+        except:
             failed.append(code)
+
+    print(f"取得合約：{len(contracts)} 檔，找不到：{len(failed)} 檔")
+
+    # 批次 snapshots
+    total = len(contracts)
+    for i in range(0, total, BATCH_SIZE):
+        batch = contracts[i:i+BATCH_SIZE]
+        batch_contracts = [c for _, _, c in batch]
+        try:
+            snaps = api.snapshots(batch_contracts)
+            for (code, market, _), q in zip(batch, snaps):
+                suffix = ".TW" if market == "TSE" else ".TWO"
+                try:
+                    results[code + suffix] = {
+                        "code":      code,
+                        "market":    market,
+                        "close":     q.close,
+                        "open":      q.open,
+                        "high":      q.high,
+                        "low":       q.low,
+                        "volume":    q.volume,
+                        "amount":    q.amount,
+                        "change":    q.change_price,
+                        "pct":       round(float(q.change_rate), 2) if q.change_rate else None,
+                        "bid":       q.buy_price,
+                        "ask":       q.sell_price,
+                        "total_vol": q.total_volume,
+                        "ts":        str(q.ts),
+                    }
+                except Exception as e:
+                    failed.append(code)
+        except Exception as e:
+            print(f"  批次失敗 [{i}~{i+BATCH_SIZE}]: {e}")
+            for code, _, _ in batch:
+                failed.append(code)
+
+        if (i + BATCH_SIZE) % 200 == 0:
+            print(f"  進度：{min(i+BATCH_SIZE, total)}/{total}")
+        time.sleep(0.1)   # 輕度限速
 
     api.logout()
 
@@ -321,17 +338,16 @@ ${simulation ? `        accounts = api.login(API_KEY, SECRET_KEY)` :
         "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "mode":       "simulation" if SIMULATION else "live",
         "count":      len(results),
-        "failed":     failed[:20],
+        "failed_count": len(failed),
         "quotes":     results,
     }
 
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
 
-    print(f"\\n完成：{len(results)} 檔 → {OUTPUT_PATH}")
-    print(f"失敗：{len(failed)} 檔")
-    if failed[:5]:
-        print(f"失敗範例：{failed[:5]}")
+    sz = os.path.getsize(OUTPUT_PATH) / 1024
+    print(f"\\n完成：{len(results)} 檔成功 / {len(failed)} 檔失敗")
+    print(f"檔案：{OUTPUT_PATH}  ({sz:.0f} KB)")
 
 if __name__ == "__main__":
     main()
