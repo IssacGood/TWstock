@@ -43,6 +43,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font)}
     <a href="sectors.html">類股排行</a>
     <a href="ai.html">AI選股</a>
     <a href="fear.html">貪婪指數</a>
+    <a href="sinopac.html">永豐API</a>
   </nav>
   <div></div>
 </div>
@@ -116,7 +117,24 @@ async function loadAndRender(){
   const sortedDates=Object.keys(dailyStats).sort().slice(-30);
   const dailyUp=sortedDates.map(d=>dailyStats[d].up);
   const dailyDown=sortedDates.map(d=>dailyStats[d].down);
-  const dailyLabels=sortedDates.map(d=>d.slice(5));  // MM-DD
+
+  // ★ 標籤：週五加 (五) 並用不同顏色
+  const dailyLabels=sortedDates.map(d=>{
+    const day=new Date(d).getDay(); // 0=日,1=一...5=五
+    const mmdd=d.slice(5);
+    if(day===5) return mmdd+'(五)';
+    if(day===1) return mmdd+'(一)';
+    return mmdd;
+  });
+  // 週五的點用金色標示
+  const pointColors=sortedDates.map(d=>{
+    const day=new Date(d).getDay();
+    return day===5?'#f0b840':day===1?'rgba(79,142,247,0.8)':'rgba(232,64,64,0.6)';
+  });
+  const pointColorsDown=sortedDates.map(d=>{
+    const day=new Date(d).getDay();
+    return day===5?'#f0b840':day===1?'rgba(79,142,247,0.8)':'rgba(40,167,69,0.6)';
+  });
 
   // 渲染
   document.getElementById('mainContent').innerHTML=`
@@ -131,7 +149,13 @@ async function loadAndRender(){
     </div>
 
     <div class="card" style="margin-bottom:20px">
-      <div class="section-title">近一個月每日漲跌股票數</div>
+      <div class="section-title" style="display:flex;align-items:center;gap:12px">
+        近一個月每日漲跌股票數
+        <span style="font-size:11px;color:var(--text3);font-weight:400;display:flex;gap:10px;margin-left:auto">
+          <span style="color:#f0b840">● 週五</span>
+          <span style="color:#4f8ef7">● 週一</span>
+        </span>
+      </div>
       <canvas id="dailyChart" height="80"></canvas>
     </div>
 
@@ -146,21 +170,60 @@ async function loadAndRender(){
       </div>
     </div>`;
 
-  // 近一個月每日折線圖
+  // 近一個月每日折線圖（週五金色標示，週一藍色）
   new Chart(document.getElementById('dailyChart'),{
     type:'line',
     data:{
       labels:dailyLabels,
       datasets:[
-        {label:'上漲',data:dailyUp,borderColor:'#e84040',backgroundColor:'rgba(232,64,64,.1)',borderWidth:2,fill:false,tension:.3,pointRadius:3},
-        {label:'下跌',data:dailyDown,borderColor:'#28a745',backgroundColor:'rgba(40,167,69,.1)',borderWidth:2,fill:false,tension:.3,pointRadius:3},
+        {
+          label:'上漲',data:dailyUp,
+          borderColor:'#e84040',backgroundColor:'rgba(232,64,64,.08)',
+          borderWidth:2,fill:false,tension:.3,
+          pointRadius:sortedDates.map(d=>new Date(d).getDay()===5?7:3),
+          pointBackgroundColor:pointColors,
+          pointBorderColor:pointColors,
+        },
+        {
+          label:'下跌',data:dailyDown,
+          borderColor:'#28a745',backgroundColor:'rgba(40,167,69,.08)',
+          borderWidth:2,fill:false,tension:.3,
+          pointRadius:sortedDates.map(d=>new Date(d).getDay()===5?7:3),
+          pointBackgroundColor:pointColorsDown,
+          pointBorderColor:pointColorsDown,
+        },
       ]
     },
     options:{
       responsive:true,
-      plugins:{legend:{labels:{color:'#8892aa',font:{size:12}}}},
+      plugins:{
+        legend:{labels:{color:'#8892aa',font:{size:12}}},
+        tooltip:{
+          callbacks:{
+            title:ctx=>{
+              const d=sortedDates[ctx[0].dataIndex];
+              const day=['日','一','二','三','四','五','六'][new Date(d).getDay()];
+              return `${d} (週${day})`;
+            }
+          }
+        }
+      },
       scales:{
-        x:{ticks:{color:'#8892aa',font:{size:10},maxRotation:45},grid:{color:'#1c2030'}},
+        x:{
+          ticks:{
+            color:ctx=>{
+              const d=sortedDates[ctx.index];
+              if(!d) return '#8892aa';
+              const day=new Date(d).getDay();
+              if(day===5) return '#f0b840';   // 週五金色
+              if(day===1) return '#4f8ef7';   // 週一藍色
+              return '#8892aa';
+            },
+            font:{size:10},
+            maxRotation:45
+          },
+          grid:{color:'#1c2030'}
+        },
         y:{ticks:{color:'#8892aa'},grid:{color:'#1c2030'}}
       }
     }

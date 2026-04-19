@@ -112,6 +112,7 @@ kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;paddi
     <a href="sectors.html">類股排行</a>
     <a href="ai.html">AI選股</a>
     <a href="fear.html">貪婪指數</a>
+    <a href="sinopac.html">永豐API</a>
   </nav>
   <div></div>
 </div>
@@ -215,12 +216,40 @@ async function loadPrices(){
     const d=await res.json();
     (d.stocks||[]).forEach(s=>{ stockIndex[s.symbol]=s; });
   }catch(e){}
+
+  // 自動修正現有最愛清單中錯誤的 .TW → .TWO
+  const favs=getFavs();
+  let changed=false;
+  favs.forEach((fav,i)=>{
+    if(fav.symbol.endsWith('.TW')){
+      const clean=fav.symbol.replace('.TW','');
+      if(stockIndex[clean+'.TWO'] && !stockIndex[clean+'.TW']){
+        favs[i].symbol=clean+'.TWO';
+        changed=true;
+      }
+    }
+  });
+  if(changed) saveFavs(favs);
+
   render();
 }
 
 function findStock(code){
-  const sym=code.includes('.')?code:code+'.TW';
-  return stockIndex[sym]||stockIndex[code+'.TWO']||null;
+  // 嘗試各種格式找股票
+  const clean = code.replace('.TWO','').replace('.TW','');
+  return stockIndex[clean+'.TW']
+      || stockIndex[clean+'.TWO']
+      || stockIndex[code]
+      || null;
+}
+
+function resolveSymbol(code){
+  // 自動判斷是上市(.TW)還是上櫃(.TWO)
+  const clean = code.replace('.TWO','').replace('.TW','');
+  if(code.includes('.')) return code; // 已有後綴
+  if(stockIndex[clean+'.TWO']) return clean+'.TWO'; // 上櫃
+  if(stockIndex[clean+'.TW'])  return clean+'.TW';  // 上市
+  return clean+'.TW'; // 預設上市
 }
 
 // ── localStorage ─────────────────────────
@@ -305,12 +334,23 @@ function removeFav(i){if(!confirm('確定移除？'))return;const favs=getFavs()
 function addFav(){
   let code=document.getElementById('addSymbol').value.trim().toUpperCase();
   if(!code) return alert('請輸入股票代碼');
-  const sym=code.includes('.')?code:code+'.TW';
+  const clean=code.replace('.TWO','').replace('.TW','');
   const favs=getFavs();
-  if(favs.find(f=>codeOnly(f.symbol)===code)) return alert('已在清單中');
-  const s=findStock(code);
+  if(favs.find(f=>codeOnly(f.symbol)===clean)) return alert('已在清單中');
+
+  // 自動判斷上市/上櫃
+  const sym=resolveSymbol(clean);
+  const s=findStock(clean);
+
+  if(!s){
+    // 資料庫裡沒有，詢問使用者確認
+    const confirm_msg = `找不到代碼 ${clean} 的資料\n（可能是新股、下市股、或資料尚未更新）\n確定還是要加入追蹤嗎？`;
+    if(!confirm(confirm_msg)) return;
+  }
+
   favs.push({
-    symbol:sym, name:s?.name||'',
+    symbol:sym,
+    name:s?.name||'',
     buyPrice:document.getElementById('addBuyPrice').value||null,
     buyDate:document.getElementById('addBuyDate').value||null,
     shares:document.getElementById('addShares').value||null,

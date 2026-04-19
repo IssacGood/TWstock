@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>永豐 API 設定 — TWSTOCK</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{--bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--border:#252a3a;--accent:#00c896;--accent2:#4f8ef7;--gold:#f0b840;--text:#e8eaf0;--text2:#8892aa;--text3:#55607a;--up:#e84040;--down:#28a745;--radius:8px;--font:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;position:sticky;top:0;z-index:100;gap:8px}
+.topbar-logo{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--accent);letter-spacing:2px;justify-self:start}
+.topbar-nav{display:flex;gap:2px;justify-self:center}
+.topbar-nav a{color:var(--text2);text-decoration:none;font-size:13px;padding:4px 10px;border-radius:6px;white-space:nowrap;transition:all .15s}
+.topbar-nav a:hover{color:var(--text);background:var(--bg3)}
+.topbar-nav a.active{color:var(--accent);background:rgba(0,200,150,.1)}
+
+.container{max-width:900px;margin:0 auto;padding:24px 16px}
+
+/* 說明區 */
+.notice{background:rgba(240,184,64,.07);border:1px solid rgba(240,184,64,.3);border-radius:12px;padding:16px 20px;margin-bottom:24px;line-height:1.8}
+.notice h3{color:var(--gold);font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.notice p{font-size:13px;color:var(--text2)}
+.notice code{background:var(--bg3);padding:1px 6px;border-radius:3px;color:var(--accent);font-family:var(--mono);font-size:12px}
+
+/* 設定卡 */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.card-title::before{content:'';width:3px;height:13px;background:var(--accent2);border-radius:2px;display:block}
+
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;color:var(--text3);font-weight:500}
+.field input{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:13px;padding:8px 10px;outline:none;transition:border-color .2s;width:100%}
+.field input:focus{border-color:var(--accent2)}
+.field input::placeholder{color:var(--text3)}
+.field input[type=password]{font-family:var(--mono)}
+.field-full{grid-column:1/-1}
+
+.btn-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.btn{border:none;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:600;padding:10px 20px;cursor:pointer;transition:all .15s}
+.btn-primary{background:var(--accent);color:#0d0f14}.btn-primary:hover{opacity:.85}
+.btn-secondary{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}.btn-secondary:hover{border-color:var(--text2);color:var(--text)}
+.btn-danger{background:rgba(232,64,64,.15);color:var(--up);border:1px solid transparent}.btn-danger:hover{background:rgba(232,64,64,.3)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* 狀態 */
+.status-box{background:var(--bg3);border-radius:8px;padding:12px 14px;margin-top:12px;font-size:12px;line-height:1.8;display:none}
+.status-box.show{display:block}
+.status-line{display:flex;align-items:flex-start;gap:6px;margin-bottom:2px}
+.status-icon{flex-shrink:0;margin-top:1px}
+.log-area{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--text2);max-height:200px;overflow-y:auto;margin-top:10px;white-space:pre-wrap;word-break:break-all}
+
+/* 腳本產生 */
+.script-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:12px;position:relative}
+.script-box pre{font-family:var(--mono);font-size:12px;color:var(--text2);overflow-x:auto;white-space:pre}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text2);font-size:11px;padding:3px 8px;cursor:pointer;transition:all .15s}
+.copy-btn:hover{color:var(--accent);border-color:var(--accent)}
+
+/* 使用說明步驟 */
+.steps{counter-reset:step;display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.step{display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--text2);line-height:1.7}
+.step-num{background:var(--accent2);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+.step code{background:var(--bg3);padding:1px 6px;border-radius:3px;color:var(--accent);font-family:var(--mono);font-size:12px}
+
+@media(max-width:600px){.field-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-logo">TWSTOCK</div>
+  <nav class="topbar-nav">
+    <a href="index.html">選股</a>
+    <a href="watchlist.html">批量搜尋</a>
+    <a href="favorites.html">我的最愛</a>
+    <a href="market.html">大盤/期貨</a>
+    <a href="stats.html">統計</a>
+    <a href="sectors.html">類股排行</a>
+    <a href="ai.html">AI選股</a>
+    <a href="sinopac.html" class="active">永豐 API</a>
+  </nav>
+  <div></div>
+</div>
+
+<div class="container">
+
+  <div class="notice">
+    <h3>⚠️ 說明</h3>
+    <p>永豐 Shioaji API 需要 CA 憑證（本地檔案），<strong>無法在 GitHub Actions 上使用</strong>。<br>
+    請在<strong>本機電腦</strong>安裝 <code>pip install shioaji</code> 後，用下方產生的腳本在本地執行，<br>
+    執行後會產生 <code>data/sinopac_quotes.json</code>，再手動 <code>git push</code> 上傳即可。<br><br>
+    🔐 <strong>API 金鑰僅儲存於本地瀏覽器（localStorage），不會上傳到 GitHub。</strong></p>
+  </div>
+
+  <!-- API 設定 -->
+  <div class="card">
+    <div class="card-title">API 設定（本地儲存）</div>
+    <div class="field-grid">
+      <div class="field">
+        <label>API KEY</label>
+        <input type="text" id="apiKey" placeholder="你的 API Key">
+      </div>
+      <div class="field">
+        <label>SECRET KEY</label>
+        <input type="password" id="secretKey" placeholder="你的 Secret Key">
+      </div>
+      <div class="field field-full">
+        <label>CA 憑證路徑（本機絕對路徑）</label>
+        <input type="text" id="caPath" placeholder="例：C:\Users\你的名字\SinoPac\ca.pfx 或 /home/user/ca.pfx">
+      </div>
+      <div class="field">
+        <label>CA 密碼</label>
+        <input type="password" id="caPasswd" placeholder="CA 憑證密碼">
+      </div>
+      <div class="field">
+        <label>身分證字號</label>
+        <input type="text" id="personId" placeholder="A123456789">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveSettings()">💾 儲存設定</button>
+      <button class="btn btn-secondary" onclick="loadSettings()">📂 載入已儲存</button>
+      <button class="btn btn-danger" onclick="clearSettings()">🗑 清除設定</button>
+    </div>
+    <div class="status-box" id="saveStatus"></div>
+  </div>
+
+  <!-- 產生腳本 -->
+  <div class="card">
+    <div class="card-title">產生本機執行腳本</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px">
+      點擊「產生腳本」後，複製下方程式碼，儲存為 <code style="background:var(--bg3);padding:1px 6px;border-radius:3px;color:var(--accent);font-family:var(--mono)">fetch_sinopac.py</code> 在你的專案根目錄，再執行。
+    </p>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="generateScript()">⚙️ 產生腳本</button>
+      <button class="btn btn-secondary" onclick="generateScript(true)">🔬 模擬帳號版（不需憑證）</button>
+    </div>
+
+    <div id="scriptArea" style="display:none">
+      <div class="script-box">
+        <button class="copy-btn" onclick="copyScript()">複製</button>
+        <pre id="scriptCode"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- 使用步驟 -->
+  <div class="card">
+    <div class="card-title">使用步驟</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div>安裝永豐套件：<code>pip install shioaji</code></div></div>
+      <div class="step"><div class="step-num">2</div><div>在上方填入 API 設定後，點「產生腳本」</div></div>
+      <div class="step"><div class="step-num">3</div><div>複製腳本內容，儲存為 <code>fetch_sinopac.py</code> 放在專案根目錄</div></div>
+      <div class="step"><div class="step-num">4</div><div>在終端機執行：<code>python fetch_sinopac.py</code><br>會產生 <code>data/sinopac_quotes.json</code></div></div>
+      <div class="step"><div class="step-num">5</div><div>上傳到 GitHub：<code>git add data/sinopac_quotes.json && git commit -m "update sinopac" && git push</code></div></div>
+      <div class="step"><div class="step-num">6</div><div>可以設定 Windows 工作排程器 或 Mac/Linux 的 cron 自動每天執行</div></div>
+    </div>
+
+    <div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--text2);line-height:1.8">
+      <strong style="color:var(--gold)">💡 模擬帳號說明：</strong><br>
+      永豐提供模擬環境（<code style="color:var(--accent)">simulation=True</code>），可以用自己的帳號免費測試，<br>
+      但行情資料為模擬報價，不完全等同真實市場。<br>
+      如需真實行情，需使用正式帳號 + CA 憑證。
+    </div>
+  </div>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'tw_sinopac_settings';
+
+function saveSettings(){
+  const settings = {
+    apiKey:   document.getElementById('apiKey').value.trim(),
+    secretKey:document.getElementById('secretKey').value.trim(),
+    caPath:   document.getElementById('caPath').value.trim(),
+    caPasswd: document.getElementById('caPasswd').value.trim(),
+    personId: document.getElementById('personId').value.trim(),
+  };
+  if(!settings.apiKey) return showStatus('saveStatus','⚠ 請填入 API Key','warn');
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  showStatus('saveStatus','✅ 設定已儲存到本地瀏覽器（不會上傳到 GitHub）','ok');
+}
+
+function loadSettings(){
+  const s = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  if(!s.apiKey) return showStatus('saveStatus','⚠ 尚未儲存任何設定','warn');
+  document.getElementById('apiKey').value   = s.apiKey||'';
+  document.getElementById('secretKey').value= s.secretKey||'';
+  document.getElementById('caPath').value   = s.caPath||'';
+  document.getElementById('caPasswd').value = s.caPasswd||'';
+  document.getElementById('personId').value = s.personId||'';
+  showStatus('saveStatus','✅ 已載入儲存的設定','ok');
+}
+
+function clearSettings(){
+  if(!confirm('確定清除所有儲存的設定？')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  ['apiKey','secretKey','caPath','caPasswd','personId'].forEach(id=>document.getElementById(id).value='');
+  showStatus('saveStatus','🗑 設定已清除','warn');
+}
+
+function showStatus(id, msg, type){
+  const el = document.getElementById(id);
+  el.className = 'status-box show';
+  el.style.color = type==='ok'?'var(--accent)':type==='warn'?'var(--gold)':'var(--up)';
+  el.textContent = msg;
+}
+
+function generateScript(simulation=false){
+  const s = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  const apiKey    = simulation ? 'YOUR_API_KEY'    : (s.apiKey    || 'YOUR_API_KEY');
+  const secretKey = simulation ? 'YOUR_SECRET_KEY' : (s.secretKey || 'YOUR_SECRET_KEY');
+  const caPath    = simulation ? ''                : (s.caPath    || '');
+  const caPasswd  = simulation ? ''                : (s.caPasswd  || '');
+  const personId  = simulation ? ''                : (s.personId  || '');
+
+  const script = `#!/usr/bin/env python3
+"""
+永豐 Shioaji 行情抓取腳本（${simulation?'模擬帳號版':'正式帳號版'}）
+執行方式：python fetch_sinopac.py
+輸出：data/sinopac_quotes.json
+
+安裝：pip install shioaji
+"""
+
+import shioaji as sj
+import json, os
+from datetime import datetime, date, timedelta
+import twstock
+
+# ── 設定 ──────────────────────────────────────
+API_KEY    = "${apiKey}"
+SECRET_KEY = "${secretKey}"${!simulation ? `
+CA_PATH    = r"${caPath}"   # Windows 路徑用 r"..." 避免跳脫字元
+CA_PASSWD  = "${caPasswd}"
+PERSON_ID  = "${personId}"` : ''}
+SIMULATION = ${simulation ? 'True' : 'False'}
+
+OUTPUT_PATH = "data/sinopac_quotes.json"
+
+def get_all_symbols():
+    """取得全部台股代碼（只取上市）"""
+    codes = twstock.codes
+    return [k for k, v in codes.items()
+            if v.market == "上市" and v.type == "股票"]
+
+def main():
+    os.makedirs("data", exist_ok=True)
+    print(f"登入永豐 API（{'模擬' if SIMULATION else '正式'}模式）...")
+
+    api = sj.Shioaji(simulation=SIMULATION)
+
+    try:
+        # 登入
+${simulation ? `        accounts = api.login(API_KEY, SECRET_KEY)` :
+`        accounts = api.login(
+            API_KEY, SECRET_KEY,
+            fetch_contract=True,
+        )
+        # 啟動憑證（正式帳號需要）
+        api.activate_ca(
+            ca_path=CA_PATH,
+            ca_passwd=CA_PASSWD,
+            person_id=PERSON_ID,
+        )`}
+        print(f"登入成功，帳號：{accounts}")
+    except Exception as e:
+        print(f"登入失敗：{e}")
+        return
+
+    symbols = get_all_symbols()
+    print(f"準備抓取 {len(symbols)} 檔報價...")
+
+    results = {}
+    failed  = []
+
+    for i, code in enumerate(symbols):
+        try:
+            # Shioaji 合約格式
+            contract = api.Contracts.Stocks.TSE.get(code) or \\
+                       api.Contracts.Stocks.OTC.get(code)
+            if not contract:
+                failed.append(code)
+                continue
+
+            # 快照（即時報價）
+            snap = api.snapshots([contract])
+            if not snap:
+                failed.append(code)
+                continue
+
+            q = snap[0]
+            results[code + ".TW"] = {
+                "code":      code,
+                "close":     q.close,
+                "open":      q.open,
+                "high":      q.high,
+                "low":       q.low,
+                "volume":    q.volume,        # 成交量（張）
+                "amount":    q.amount,        # 成交金額
+                "change":    q.change_price,  # 漲跌價
+                "pct":       round(q.change_rate, 2) if q.change_rate else None,
+                "bid":       q.buy_price,
+                "ask":       q.sell_price,
+                "total_vol": q.total_volume,
+                "ts":        str(q.ts),
+            }
+
+            if (i+1) % 100 == 0:
+                print(f"  進度：{i+1}/{len(symbols)}")
+
+        except Exception as e:
+            failed.append(code)
+
+    api.logout()
+
+    out = {
+        "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "mode":       "simulation" if SIMULATION else "live",
+        "count":      len(results),
+        "failed":     failed[:20],
+        "quotes":     results,
+    }
+
+    with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
+
+    print(f"\\n完成：{len(results)} 檔 → {OUTPUT_PATH}")
+    print(f"失敗：{len(failed)} 檔")
+    if failed[:5]:
+        print(f"失敗範例：{failed[:5]}")
+
+if __name__ == "__main__":
+    main()
+`;
+
+  document.getElementById('scriptArea').style.display='block';
+  document.getElementById('scriptCode').textContent=script;
+}
+
+function copyScript(){
+  const code = document.getElementById('scriptCode').textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent='已複製！';
+    setTimeout(()=>btn.textContent='複製',2000);
+  });
+}
+
+// 頁面載入時自動讀取已儲存的設定
+loadSettings();
+</script>
+</body>
+</html>

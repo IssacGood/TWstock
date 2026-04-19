@@ -199,6 +199,7 @@ kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;paddi
     <a href="sectors.html">類股排行</a>
     <a href="ai.html">AI選股</a>
     <a href="fear.html">貪婪指數</a>
+    <a href="sinopac.html">永豐API</a>
   </nav>
   <div class="updated-tag" id="updatedAt">載入中…</div>
 </div>
@@ -216,9 +217,7 @@ kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;paddi
     <!-- 類股快選 -->
     <div class="sidebar-section">
       <div class="sidebar-title">類股篩選</div>
-      <div class="sector-wrap" id="sectorWrap">
-        <button class="sector-btn active" data-sector="">全部</button>
-      </div>
+      <div class="sector-wrap" id="sectorWrap"></div>
     </div>
 
     <!-- 選股條件 -->
@@ -444,6 +443,8 @@ async function loadBatch(batchId){
 // ══════════════════════════════════════════════
 function buildSectorButtons(){
   const wrap=document.getElementById('sectorWrap');
+  wrap.innerHTML=''; // 清空，避免重複
+
   // 收集實際出現的大類
   const sectorSet=new Set();
   allStocks.forEach(s=>{
@@ -451,12 +452,43 @@ function buildSectorButtons(){
       if(list.includes(s.group)) sectorSet.add(big);
     }
   });
-  sectorSet.forEach(big=>{
+
+  // 定義顯示順序（其他排最後）
+  const ORDER=['電子','金融','生技','航運','傳產','建設','觀光','綠能','其他'];
+  const sorted=[...sectorSet].sort((a,b)=>{
+    const ia=ORDER.indexOf(a), ib=ORDER.indexOf(b);
+    if(ia===-1&&ib===-1) return a.localeCompare(b,'zh');
+    if(ia===-1) return 1;
+    if(ib===-1) return -1;
+    return ia-ib;
+  });
+
+  // 建立「全部」按鈕（含正確的 click 事件）
+  const allBtn=document.createElement('button');
+  allBtn.className='sector-btn active';
+  allBtn.dataset.sector='';
+  allBtn.textContent='全部';
+  allBtn.addEventListener('click',()=>{
+    activeSector='';
+    document.querySelectorAll('.sector-btn').forEach(b=>
+      b.classList.toggle('active', b.dataset.sector===''));
+    applyFilters();
+  });
+  wrap.appendChild(allBtn);
+
+  // 建立各類股按鈕
+  sorted.forEach(big=>{
     const btn=document.createElement('button');
-    btn.className='sector-btn'; btn.dataset.sector=big; btn.textContent=big;
+    btn.className='sector-btn';
+    btn.dataset.sector=big;
+    btn.textContent=big;
     btn.addEventListener('click',()=>{
       activeSector=activeSector===big?'':big;
-      document.querySelectorAll('.sector-btn').forEach(b=>b.classList.toggle('active',b.dataset.sector===activeSector||(activeSector===''&&b.dataset.sector==='')));
+      document.querySelectorAll('.sector-btn').forEach(b=>
+        b.classList.toggle('active',
+          activeSector===''
+            ? b.dataset.sector===''
+            : b.dataset.sector===activeSector));
       applyFilters();
     });
     wrap.appendChild(btn);
